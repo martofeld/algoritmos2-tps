@@ -11,8 +11,8 @@ void pruebas_creacion() {
 
     print_test("La cola no deberia ser NULL al crearse", cola);
     print_test("La cola deberia estar vacia al crearse", cola_esta_vacia(cola));
-    print_test("La cola recien creada deberia dar NULL al desencolar", cola_desencolar(cola));
-    print_test("La cola recien creada deberia dar NULL al ver primero", cola_ver_primero(cola));
+    print_test("La cola recien creada deberia dar NULL al desencolar", cola_desencolar(cola) == NULL);
+    print_test("La cola recien creada deberia dar NULL al ver primero", cola_ver_primero(cola) == NULL);
 
     cola_destruir(cola, NULL);
     print_test("La cola se destruyo", true);
@@ -29,7 +29,7 @@ void pruebas_encolar() {
     for (int i = 0; i < SIZE; i++) {
         encolo_bien &= cola_encolar(cola, &array[i]);
     }
-    print_test("Encolo bien", encolo_bien)
+    print_test("Encolo bien", encolo_bien);
 
     print_test("La cola no deberia estar vacia al encolar", !cola_esta_vacia(cola));
 
@@ -47,10 +47,10 @@ void pruebas_desencolar() {
         cola_encolar(cola, &array[i]);
     }
 
-    print_test("La cola no deberia estar vacia", !cola_esta_vacia(cola));
+    print_test("La cola no deberia estar vacia para desencolar", !cola_esta_vacia(cola));
     bool desencolo_bien = true;
     for (int i = 0; i < SIZE; i++) {
-        desencolo_bien &= cola_desencolar(cola) == &array[i]
+        desencolo_bien &= cola_desencolar(cola) == &array[i];
     }
     print_test("Desencolo bien", desencolo_bien);
 
@@ -89,16 +89,16 @@ void pruebas_destruyendo_el_dato() {
 
     cola_t *cola = cola_crear();
     for (int i = 0; i < SIZE; i++) {
-        printf("Encolando un %d", i);
-        print_test("", cola_encolar(cola, &array[i]));
+        cola_encolar(cola, &array[i]);
     }
 
     cola_destruir(cola, destruir_dato);
     print_test("Destuyendo cola y datos", true);
+    bool datos_invalidos = true;
     for (int i = 0; i < SIZE; i++) {
-        printf("La posicion %d deberia ser -1", i);
-        print_test("", array[i] == -1);
+        datos_invalidos &= array[i] == -1;
     }
+    print_test("Todos los datos deberian ser -1 luego de ser destruidos", datos_invalidos);
 }
 
 void pruebas_no_destruyendo_el_dato() {
@@ -109,16 +109,15 @@ void pruebas_no_destruyendo_el_dato() {
 
     cola_t *cola = cola_crear();
     for (int i = 0; i < SIZE; i++) {
-        printf("Encolando un %d", i);
-        print_test("", cola_encolar(cola, &array[i]));
+        cola_encolar(cola, &array[i]);
     }
 
     cola_destruir(cola, NULL);
-    print_test("Destuyendo cola, los datos no deberian ser modificados", true);
+    bool datos_no_modificados = true;
     for (int i = 0; i < SIZE; i++) {
-        printf("La posicion %d deberia ser %d", i, i);
-        print_test("", array[i] == i);
+        datos_no_modificados &= array[i] == i;
     }
+    print_test("Destuyendo cola, los datos no deberian ser modificados", datos_no_modificados);
 }
 
 void pruebas_con_null() {
