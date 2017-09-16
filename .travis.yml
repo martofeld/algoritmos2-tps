@@ -1,6 +1,17 @@
-language: c
-compiler: gcc
+os:
+  - linux
 
-run_script:
-  - gcc -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -o cola/pruebas cola/*.c
-  - valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./cola/pruebas
+before_install:
+  sudo apt-get install valgrind
+
+script:
+  gcc -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -o cola/pruebas cola/*.c
+  valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./cola/pruebas
+
+language: c
+compiler:
+  - gcc
+branch:
+  only:
+  - master
+  - /tp-.*$/
