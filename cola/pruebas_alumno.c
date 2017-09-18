@@ -67,11 +67,7 @@ void pruebas_ver_primero() {
     int tres = 3;
     cola_encolar(cola, &tres);
 
-    bool ok = true;
-    for (int i = 0; i < 5; i++) {
-        ok &= cola_ver_primero(cola) == &uno;
-    }
-    print_test("ver primero deberia devolver 1", ok);
+    print_test("ver primero deberia devolver 1",  cola_ver_primero(cola) == &uno);
 
     cola_destruir(cola, NULL);
 }
@@ -130,6 +126,20 @@ void pruebas_con_null() {
     cola_destruir(cola, NULL);
 }
 
+void pruebas_volumen(){
+    int array[1000];
+    for (int i = 0; i < 1000; ++i) {
+        array[i] = i;
+    }
+    bool encolo_bien = true;
+    for (int i = 0; i < 1000; ++i) {
+        encolo_bien &= cola_encolar(cola_desencolar, &array[i]);
+    }
+    print_test("Encolo 1000 elementos". encolo_bien);
+
+    cola_destruir(cola, NULL);
+}
+
 void pruebas_cola_alumno(void) {
     pruebas_creacion();
     pruebas_encolar();
@@ -138,4 +148,5 @@ void pruebas_cola_alumno(void) {
     pruebas_destruyendo_el_dato();
     pruebas_no_destruyendo_el_dato();
     pruebas_con_null();
+    pruebas_volumen();
 }

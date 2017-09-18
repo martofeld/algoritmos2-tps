@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "cola.h"
 
-#define COLA_VACIA 0
-
 struct nodo;
 typedef struct nodo nodo_t;
 
@@ -44,7 +42,7 @@ cola_t *cola_crear() {
 }
 
 bool cola_esta_vacia(const cola_t *cola) {
-    return !cola->primero || !cola->ultimo;
+    return !cola->primero && !cola->ultimo;
 }
 
 bool cola_encolar(cola_t *cola, void *valor) {
@@ -73,7 +71,7 @@ void *cola_desencolar(cola_t *cola) {
     void *resultado = nodo->dato;
     cola->primero = nodo->proximo;
     nodo_destruir(nodo);
-    if (cola_esta_vacia(cola)) {
+    if (!cola->primero) {
         cola->ultimo = NULL; //Acabo de desencolar el ultimo, borro el ultimo
     }
 
@@ -89,14 +87,11 @@ void *cola_ver_primero(const cola_t *cola) {
 }
 
 void cola_destruir(cola_t *cola, void destruir_dato(void *)) {
-    nodo_t *actual = cola->primero;
-    while (actual) {
+    while (!cola_esta_vacia(cola)) {
+        void* dato = cola_desencolar(cola);
         if (destruir_dato != NULL) {
-            destruir_dato(actual->dato);
+            destruir_dato(dato);
         }
-        nodo_t *proximo = actual->proximo;
-        nodo_destruir(actual);
-        actual = proximo;
     }
     free(cola);
 }
