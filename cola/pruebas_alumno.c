@@ -131,11 +131,13 @@ void pruebas_volumen(){
     for (int i = 0; i < 1000; ++i) {
         array[i] = i;
     }
+
+    cola_t *cola = cola_crear();
     bool encolo_bien = true;
     for (int i = 0; i < 1000; ++i) {
-        encolo_bien &= cola_encolar(cola_desencolar, &array[i]);
+        encolo_bien &= cola_encolar(cola, &array[i]);
     }
-    print_test("Encolo 1000 elementos". encolo_bien);
+    print_test("Encolo 1000 elementos", encolo_bien);
 
     cola_destruir(cola, NULL);
 }
