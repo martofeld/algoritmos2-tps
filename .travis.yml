@@ -5,8 +5,7 @@ before_install:
   - sudo apt-get install valgrind
 
 script:
-  - gcc -std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -o lista_enlazada/pruebas lista_enlazada/*.c
-  - valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./lista_enlazada/pruebas
+  - ./travis_script.sh
 
 language: c
 compiler:

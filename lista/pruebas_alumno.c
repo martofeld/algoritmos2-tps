@@ -76,7 +76,7 @@ void pruebas_borrar_primero() {
 
 bool sumar(void *dato, void *extra) {
     int *int_dato = dato;
-    *(int*)extra += *int_dato;
+    *(int *) extra += *int_dato;
     return true;
 }
 
@@ -100,8 +100,8 @@ bool imprimir(void *dato, void *extra) {
     if (strcmp("python", cadena) == 0) {
         return false;
     }
-    strcat((char*)extra, cadena);
-    strcat((char*)extra, " ");
+    strcat((char *) extra, cadena);
+    strcat((char *) extra, " ");
     return true;
 }
 
@@ -139,8 +139,8 @@ void pruebas_iterar3() {
     lista_destruir(lista, NULL);
 }
 
-void pruebas_de_volumen(){
-    lista_t* lista = lista_crear();
+void pruebas_de_volumen() {
+    lista_t *lista = lista_crear();
     int array[10000];
     for (int i = 0; i < 10000; i++) {
         array[i] = i;
@@ -158,16 +158,16 @@ void pruebas_de_volumen(){
     lista_destruir(lista, NULL);
 }
 
-void destruir_dato_posta(int* dato){
+void destruir_dato_posta(int *dato) {
     *dato = -1;
 }
 
-void destruir_dato(void* dato){
+void destruir_dato(void *dato) {
     destruir_dato_posta(dato);
 }
 
-void pruebas_destruyendo_dato(){
-    lista_t* lista = lista_crear();
+void pruebas_destruyendo_dato() {
+    lista_t *lista = lista_crear();
     int array[5];
     for (int i = 0; i < 5; i++) {
         array[i] = i;
@@ -184,33 +184,33 @@ void pruebas_destruyendo_dato(){
 }
 
 // --------- PRUEBAS ITERADOR ---------
-void pruebas_creacion_iterador(){
-    lista_t* lista = lista_crear();
+void pruebas_creacion_iterador() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
         lista_insertar_ultimo(lista, &array[i]);
     }
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
     print_test("El iterador arranca al principio de la lista", lista_iter_ver_actual(iterador) == &array[0]);
     print_test("El iterador no esta al final", !lista_iter_al_final(iterador));
     lista_iter_destruir(iterador);
     print_test("El iterador se destruyo", true);
 }
 
-void pruebas_avanzar(){
-    lista_t* lista = lista_crear();
+void pruebas_avanzar() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
         lista_insertar_ultimo(lista, &array[i]);
     }
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
     bool ok = true;
     int i = 0;
-    while(!lista_iter_al_final(iterador)){
+    while (!lista_iter_al_final(iterador)) {
         ok &= lista_iter_ver_actual(iterador) == &array[i];
         i++;
         lista_iter_avanzar(iterador);
@@ -223,15 +223,15 @@ void pruebas_avanzar(){
     lista_destruir(lista, NULL);
 }
 
-void pruebas_borrar1(){
-    lista_t* lista = lista_crear();
+void pruebas_borrar1() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
         lista_insertar_ultimo(lista, &array[i]);
     }
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
 
     print_test("Borrar deberia borrar el primero correctamente", lista_iter_borrar(iterador) == &array[0]);
     print_test("El iterador esta en la segunda posicion", lista_iter_ver_actual(iterador) == &array[1]);
@@ -242,16 +242,16 @@ void pruebas_borrar1(){
     lista_destruir(lista, NULL);
 }
 
-void pruebas_borrar2(){
-    lista_t* lista = lista_crear();
+void pruebas_borrar2() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
         lista_insertar_ultimo(lista, &array[i]);
     }
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
-    while(!lista_iter_al_final(iterador)){
+    lista_iter_t *iterador = lista_iter_crear(lista);
+    while (!lista_iter_al_final(iterador)) {
         lista_iter_avanzar(iterador);
     }
 
@@ -264,30 +264,30 @@ void pruebas_borrar2(){
     lista_destruir(lista, NULL);
 }
 
-void pruebas_borrar3(){
-    lista_t* lista = lista_crear();
+void pruebas_borrar3() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
         lista_insertar_ultimo(lista, &array[i]);
     }
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
     int indice = 0;
-    for(; indice < 6; indice++){
+    for (; indice < 6; indice++) {
         lista_iter_avanzar(iterador);
     }
 
     print_test("Borrar deberia borrar el ultimo correctamente", lista_iter_borrar(iterador) == &array[indice]);
-    print_test("El iterador esta una poscion mas", lista_iter_ver_actual(iterador) == &array[indice+1]);
+    print_test("El iterador esta una poscion mas", lista_iter_ver_actual(iterador) == &array[indice + 1]);
     print_test("La lista tiene un elemento menos", lista_largo(lista) == 9);
 
     lista_iter_destruir(iterador);
     lista_destruir(lista, NULL);
 }
 
-void pruebas_insertar1(){
-    lista_t* lista = lista_crear();
+void pruebas_insertar1() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
@@ -295,7 +295,7 @@ void pruebas_insertar1(){
     }
     int cuarenta = 40;
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
 
     print_test("Insertar deberia cambiar el primero correctamente", lista_iter_insertar(iterador, &cuarenta));
     print_test("El iterador esta en la segunda posicion", lista_iter_ver_actual(iterador) == &cuarenta);
@@ -306,8 +306,8 @@ void pruebas_insertar1(){
     lista_destruir(lista, NULL);
 }
 
-void pruebas_insertar2(){
-    lista_t* lista = lista_crear();
+void pruebas_insertar2() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
@@ -315,8 +315,8 @@ void pruebas_insertar2(){
     }
     int cuarenta = 40;
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
-    while(!lista_iter_al_final(iterador)){
+    lista_iter_t *iterador = lista_iter_crear(lista);
+    while (!lista_iter_al_final(iterador)) {
         lista_iter_avanzar(iterador);
     }
 
@@ -329,8 +329,8 @@ void pruebas_insertar2(){
     lista_destruir(lista, NULL);
 }
 
-void pruebas_insertar3(){
-    lista_t* lista = lista_crear();
+void pruebas_insertar3() {
+    lista_t *lista = lista_crear();
     int array[10];
     for (int i = 0; i < 10; i++) {
         array[i] = i;
@@ -338,9 +338,9 @@ void pruebas_insertar3(){
     }
     int cuarenta = 40;
 
-    lista_iter_t* iterador = lista_iter_crear(lista);
+    lista_iter_t *iterador = lista_iter_crear(lista);
     int indice = 0;
-    for(; indice < 6; indice++){
+    for (; indice < 6; indice++) {
         lista_iter_avanzar(iterador);
     }
 
@@ -374,7 +374,7 @@ void pruebas_lista_alumno(void) {
     pruebas_insertar3();
 }
 
-int main(){
+int main() {
     pruebas_lista_alumno();
     return 0;
 }
