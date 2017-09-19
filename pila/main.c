@@ -1,5 +1,5 @@
 #include "pila.h"
-#include "testing.h"
+#include "../testing.h"
 #include <stdio.h>
 
 /* ******************************************************************
