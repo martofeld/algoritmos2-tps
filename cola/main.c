@@ -1,5 +1,5 @@
 #include "cola.h"
-#include "testing.h"
+#include "../testing.h"
 #include <stdio.h>
 
 /* ******************************************************************
