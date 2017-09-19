@@ -1,5 +1,5 @@
 #include "vector_dinamico.h"
-#include "testing.h"
+#include "../testing.h"
 #include <stdio.h>
 
 

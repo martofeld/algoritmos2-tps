@@ -1,5 +1,5 @@
 #include "pila.h"
-#include "testing.h"
+#include "../testing.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,15 +64,17 @@ void pruebas_redimensionar() {
         arreglo[i] = i;
     }
 
+    bool apilo_ok = true;
     for (int i = 0; i < 100; i++) {
-        printf("Apilando un %d ", i);
-        print_test("", pila_apilar(pila, &arreglo[i]));
+        apilo_ok &= pila_apilar(pila, &arreglo[i]);
     }
+    print_test("Apilo ok", apilo_ok);
 
+    bool desapilo_ok = true;
     for (int i = 99; i >= 0; i--) {
-        printf("Al desapilar deberia devolver %d", i);
-        print_test("", *((int *) pila_desapilar(pila)) == arreglo[i]);
+        desapilo_ok &= pila_desapilar(pila) == &arreglo[i];
     }
+    print_test("Desapilo ok", desapilo_ok);
 
     free(arreglo);
     pila_destruir(pila);
