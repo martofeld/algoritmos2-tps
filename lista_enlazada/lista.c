@@ -115,4 +115,15 @@ void *lista_borrar_primero(lista_t *lista) {
 bool lista_esta_vacia(const lista_t *lista) {
     return lista->cantidad == 0 || !lista->primero || !lista->ultimo;
 }
+
+void lista_iterar(lista_t *lista, bool visitar(void *dato, void *extra), void *extra) {
+    if (visitar == NULL) return;
+
+    nodo_t *actual = lista->primero;
+    while (actual) {
+        if (!visitar(actual->dato, extra)) {
+            break;
+        }
+    }
+}
 // --------- END LISTA ---------
