@@ -10,16 +10,13 @@ struct nodo {
     nodo_t *proximo;
 };
 
-nodo_t *nodo_crear(void *dato) {
-    return nodo_crear(dato, NULL);
-}
-
 nodo_t *nodo_crear(void *dato, nodo_t *proximo) {
     nodo_t *nodo = malloc(sizeof(nodo_t));
     if (!nodo) return NULL;
 
     nodo->dato = dato;
     nodo->proximo = proximo;
+    return nodo;
 }
 
 void nodo_destruir(nodo_t *nodo) {
@@ -28,7 +25,7 @@ void nodo_destruir(nodo_t *nodo) {
 // --------- END NODO ---------
 
 // --------- LISTA ---------
-struct lista_enlazada {
+struct lista {
     size_t cantidad;
     nodo_t *primero;
     nodo_t *ultimo;
@@ -59,12 +56,12 @@ void lista_destruir(lista_t *lista, void destruir_dato(void *)) {
     free(lista);
 }
 
-void *lista_ver_primero(lista_t *lista) {
+void *lista_ver_primero(const lista_t *lista) {
     if (!lista->primero) return NULL;
     return lista->primero->dato;
 }
 
-void *lista_ver_ultimo(lista_t *lista) {
+void *lista_ver_ultimo(const lista_t *lista) {
     if (!lista->ultimo) return NULL;
     return lista->ultimo->dato;
 }
@@ -84,7 +81,7 @@ bool lista_insertar_primero(lista_t *lista, void *dato) {
 }
 
 bool lista_insertar_ultimo(lista_t *lista, void *dato) {
-    nodo_t *nodo = nodo_crear(dato);
+    nodo_t *nodo = nodo_crear(dato, NULL);
     if (!nodo) {
         return false;
     }
@@ -107,7 +104,7 @@ void *lista_borrar_primero(lista_t *lista) {
     lista->cantidad--;
 
     if (lista->cantidad == 0) {
-        lista->ultimo == NULL;
+        lista->ultimo = NULL;
     }
     return dato;
 }
@@ -124,6 +121,7 @@ void lista_iterar(lista_t *lista, bool visitar(void *dato, void *extra), void *e
         if (!visitar(actual->dato, extra)) {
             break;
         }
+        actual = actual->proximo;
     }
 }
 // --------- END LISTA ---------
@@ -146,6 +144,9 @@ lista_iter_t *lista_iter_crear(lista_t *lista) {
 }
 
 bool lista_iter_avanzar(lista_iter_t *iter) {
+    if(lista_iter_al_final(iter)){
+        return false;
+    }
     iter->anterior = iter->actual;
     iter->actual = iter->actual->proximo;
     return true;
@@ -157,7 +158,7 @@ void *lista_iter_ver_actual(const lista_iter_t *iter) {
 }
 
 bool lista_iter_al_final(const lista_iter_t *iter) {
-    return !iter->actual;
+    return iter->actual == NULL || iter->actual->proximo == NULL;
 }
 
 void lista_iter_destruir(lista_iter_t *iter) {
@@ -168,7 +169,15 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
     nodo_t *nodo = nodo_crear(dato, iter->actual);
     if (!nodo) return false;
 
-    iter->anterior->proximo = nodo;
+    if (lista_iter_al_final(iter)){
+        iter->lista->ultimo = nodo;
+    }
+
+    if (iter->anterior) {
+        iter->anterior->proximo = nodo;
+    } else {
+        iter->lista->primero = nodo; // Si no tengo anterior es el principio de la lista
+    }
     iter->actual = nodo;
     iter->lista->cantidad++;
     return true;
@@ -176,8 +185,17 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
 
 void *lista_iter_borrar(lista_iter_t *iter) {
     nodo_t *destruir = iter->actual;
-    iter->actual = iter->actual->proximo;
-    iter->anterior->proximo = iter->actual;
+    iter->actual = destruir->proximo;
+
+    if (destruir == iter->lista->primero){
+        iter->lista->primero = destruir->proximo;
+    } else {
+        iter->anterior->proximo = iter->actual; //No era el primero, entonces cambio el anterior
+    }
+
+    if(destruir == iter->lista->ultimo){
+        iter->lista->ultimo = iter->anterior;
+    }
 
     void *valor = destruir->dato;
     nodo_destruir(destruir);
