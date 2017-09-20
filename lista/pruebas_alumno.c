@@ -197,6 +197,7 @@ void pruebas_creacion_iterador() {
     print_test("El iterador no esta al final", !lista_iter_al_final(iterador));
     lista_iter_destruir(iterador);
     print_test("El iterador se destruyo", true);
+    lista_destruir(lista, NULL);
 }
 
 void pruebas_avanzar() {
