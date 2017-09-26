@@ -217,7 +217,7 @@ void pruebas_avanzar() {
         lista_iter_avanzar(iterador);
     }
 
-    print_test("El iterador avanza correctamente", ok && i == 9);
+    print_test("El iterador avanza correctamente", ok && i == 10);
     print_test("El iterador esta al final", lista_iter_al_final(iterador));
 
     lista_iter_destruir(iterador);
@@ -252,7 +252,7 @@ void pruebas_borrar2() {
     }
 
     lista_iter_t *iterador = lista_iter_crear(lista);
-    while (!lista_iter_al_final(iterador)) {
+    while (!lista_iter_al_final(iterador) && lista_iter_ver_actual(iterador) != &array[9]) {
         lista_iter_avanzar(iterador);
     }
 

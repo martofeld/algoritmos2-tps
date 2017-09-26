@@ -161,7 +161,7 @@ void *lista_iter_ver_actual(const lista_iter_t *iter) {
 }
 
 bool lista_iter_al_final(const lista_iter_t *iter) {
-    return iter->actual == NULL || iter->actual->proximo == NULL;
+    return !iter->actual;
 }
 
 void lista_iter_destruir(lista_iter_t *iter) {
