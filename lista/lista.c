@@ -187,6 +187,8 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
 }
 
 void *lista_iter_borrar(lista_iter_t *iter) {
+    if (lista_iter_al_final(iter)) return NULL;
+
     nodo_t *destruir = iter->actual;
     iter->actual = destruir->proximo;
 
