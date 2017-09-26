@@ -110,11 +110,11 @@ void pruebas_iterar2() {
 
     lista_t *lista = lista_crear();
     for (int i = 0; i < 6; i++) {
-        lista_insertar_ultimo(lista, &array[i]);
+        lista_insertar_ultimo(lista, array[i]);
     }
 
-    char cadena[23] = "";
-    char expected[23] = "Hola Mundo ! Esto es C";
+    char cadena[24] = "";
+    char expected[24] = "Hola Mundo ! Esto es C ";
     lista_iterar(lista, imprimir, &cadena);
 
     print_test("Se deberia haber concatenado correctamente", strcmp(cadena, expected) == 0);
@@ -127,11 +127,11 @@ void pruebas_iterar3() {
 
     lista_t *lista = lista_crear();
     for (int i = 0; i < 7; i++) {
-        lista_insertar_ultimo(lista, &array[i]);
+        lista_insertar_ultimo(lista, array[i]);
     }
 
-    char cadena[11] = "";
-    char expected[11] = "Hola Mundo";
+    char cadena[12] = "";
+    char expected[12] = "Hola Mundo ";
     lista_iterar(lista, imprimir, &cadena);
 
     print_test("Se deberia haber concatenado correctamente", strcmp(cadena, expected) == 0);
@@ -355,24 +355,24 @@ void pruebas_insertar3() {
 
 void pruebas_lista_alumno(void) {
     printf("~~~~~~~ PRUEBAS LISTA ~~~~~~~\n");
-    pruebas_creacion();
-    pruebas_agregar_primero();
-    pruebas_agregar_ultimo();
-    pruebas_borrar_primero();
-    pruebas_iterar1();
-    //pruebas_iterar2();
-    //pruebas_iterar3();
-    pruebas_de_volumen();
-    pruebas_destruyendo_dato();
+//    pruebas_creacion();
+//    pruebas_agregar_primero();
+//    pruebas_agregar_ultimo();
+//    pruebas_borrar_primero();
+//    pruebas_iterar1();
+    pruebas_iterar2();
+    pruebas_iterar3();
+//    pruebas_de_volumen();
+//    pruebas_destruyendo_dato();
     printf("~~~~~~~ PRUEBAS ITERADOR ~~~~~~~\n");
-    pruebas_creacion_iterador();
-    pruebas_avanzar();
-    pruebas_borrar1();
-    pruebas_borrar2();
-    pruebas_borrar3();
-    pruebas_insertar1();
-    pruebas_insertar2();
-    pruebas_insertar3();
+//    pruebas_creacion_iterador();
+//    pruebas_avanzar();
+//    pruebas_borrar1();
+//    pruebas_borrar2();
+//    pruebas_borrar3();
+//    pruebas_insertar1();
+//    pruebas_insertar2();
+//    pruebas_insertar3();
 }
 
 int main() {
