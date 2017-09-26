@@ -2,6 +2,7 @@
 // Created by Martin Feldsztejn (101320) on 9/18/17.
 //
 #include "lista.h"
+#include <stdlib.h>
 
 // --------- NODO ---------
 typedef struct nodo nodo_t;
@@ -97,6 +98,8 @@ bool lista_insertar_ultimo(lista_t *lista, void *dato) {
 }
 
 void *lista_borrar_primero(lista_t *lista) {
+    if (lista_esta_vacia(lista)) return NULL;
+
     nodo_t *primero = lista->primero;
     void *dato = primero->dato;
     lista->primero = primero->proximo;

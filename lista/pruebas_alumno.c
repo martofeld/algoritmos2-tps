@@ -3,7 +3,7 @@
 //
 
 #include "lista.h"
-#include "../testing.h"
+#include "testing.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -355,27 +355,22 @@ void pruebas_insertar3() {
 
 void pruebas_lista_alumno(void) {
     printf("~~~~~~~ PRUEBAS LISTA ~~~~~~~\n");
-//    pruebas_creacion();
-//    pruebas_agregar_primero();
-//    pruebas_agregar_ultimo();
-//    pruebas_borrar_primero();
-//    pruebas_iterar1();
+    pruebas_creacion();
+    pruebas_agregar_primero();
+    pruebas_agregar_ultimo();
+    pruebas_borrar_primero();
+    pruebas_iterar1();
     pruebas_iterar2();
     pruebas_iterar3();
-//    pruebas_de_volumen();
-//    pruebas_destruyendo_dato();
+    pruebas_de_volumen();
+    pruebas_destruyendo_dato();
     printf("~~~~~~~ PRUEBAS ITERADOR ~~~~~~~\n");
-//    pruebas_creacion_iterador();
-//    pruebas_avanzar();
-//    pruebas_borrar1();
-//    pruebas_borrar2();
-//    pruebas_borrar3();
-//    pruebas_insertar1();
-//    pruebas_insertar2();
-//    pruebas_insertar3();
-}
-
-int main() {
-    pruebas_lista_alumno();
-    return 0;
+    pruebas_creacion_iterador();
+    pruebas_avanzar();
+    pruebas_borrar1();
+    pruebas_borrar2();
+    pruebas_borrar3();
+    pruebas_insertar1();
+    pruebas_insertar2();
+    pruebas_insertar3();
 }
