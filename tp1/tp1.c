@@ -124,6 +124,7 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
             i++;
         }
         n--;
+        free_strv(splited_code);
     }
     printf("OK\n");
 }
@@ -202,12 +203,15 @@ int handle_input(char *line, cola_t *payment_queue, user_t **users) {
     } else {
         printf("Comando no reconocido\n");
     }
+    free_strv(splited);
     return 0;
 }
 
 user_t *create_user_from_file(char *line) {
     char **values = split(line, ',');
-    return create_user(atoi(values[0]), values[2], atof(values[1]));
+    user_t* user = create_user(atoi(values[0]), values[2], atof(values[1]));
+    free_strv(values);
+    return user;
 }
 
 size_t count_lines(const char *file_path) {
