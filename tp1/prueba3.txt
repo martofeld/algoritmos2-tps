@@ -1,0 +1,3 @@
+agregar_pago 1 10.00 1;fd36fbf2562;validar_usuario;1;10.00;validar_pago;10.00;0;1;pagar
+procesar 1
+finalizar
