@@ -5,7 +5,6 @@
 #ifndef HASH_H
 #define HASH_H
 typedef struct hash hash_t;
-typedef struct hash_iter hash_iter_t;
 
 typedef void (*hash_destruir_dato_t)(void *);
 
@@ -27,6 +26,7 @@ void hash_destruir(hash_t *hash);
 
 #ifndef HASH_ITERADOR_H
 #define HASH_ITERADOR_H
+typedef struct hash_iter hash_iter_t;
 
 hash_iter_t *hash_iter_crear(const hash_t *hash);
 
