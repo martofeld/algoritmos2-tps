@@ -54,7 +54,7 @@ void *hash_obtener(const hash_t *hash, const char *clave) {
         while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
             lista_iter_avanzar(iter);
         }
-        if (lista_iter_al_final(iter)){
+        if (lista_iter_al_final(iter)) {
             return NULL;
         }
         return lista_iter_ver_actual(iter)->valor;
@@ -70,10 +70,10 @@ void *hash_borrar(hash_t *hash, const char *clave) {
         while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
             lista_iter_avanzar(iter);
         }
-        if (lista_iter_al_final(iter)){
+        if (lista_iter_al_final(iter)) {
             return NULL;
         }
-        return ((hash_item_t*)lista_iter_borrar(iter))->valor;
+        return ((hash_item_t *) lista_iter_borrar(iter))->valor;
     }
     return NULL;
 }
@@ -82,61 +82,67 @@ size_t hash_cantidad(const hash_t *hash) {
     return hash->n;
 }
 
-hash_item_t* crear_hash_item(const char *clave, void *dato){
-    hash_item_t* item= malloc(sizeof(hash_item_t));
-    if (!item)
-        return NULL:
-    item->clave=clave;
-    item->valor=dato;
+hash_item_t *crear_hash_item(const char *clave, void *dato) {
+    hash_item_t *item = malloc(sizeof(hash_item_t));
+    if (!item) {
+        return NULL;
+    }
+    item->clave = clave;
+    item->valor = dato;
     return item;
 }
-//Inserta un nodo a la lista..., si la clave se repite reemplaza
-//por el valor nuevo.
-//Pre: el hash fue creado.
-//Pos: Inserto un nodo con clave valor asociado.
 
-bool hash_guardar(hash_t *hash, const char *clave, void *dato){
-    hash_item_t* item= crear_hash_item(clave,dato);
-    if (!item){
+/**
+ * Inserta un nodo a la lista..., si la clave se repite reemplaza
+ * por el valor nuevo.
+ * Pre: el hash fue creado.
+ * Pos: Inserto un nodo con clave valor asociado.
+ */
+bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
+    hash_item_t *item = crear_hash_item(clave, dato);
+    if (!item) {
         return false;
     }
 
-    clave_h=hash_value(hash,clave); 
+    clave_h = hash_value(hash, clave);
 
-    if(!hash->tabla[clave_h]){
-        lista_t* lista=lista_crear();
-        lista_insertar_primero(lista,item);
-        hash->tabla[clave_h]=lista;
-        return true;
-    }
-
-    else{
-        lista_iter_t* iter= lista_iter_crear(hash->tabla[clave_h]); 
-        while(!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave,clave_h)!=0){
-            lista_iter_avanzar(hash->tabla[clave_h]);
+    if (!hash->tabla[clave_h]) {
+        lista_t *lista = lista_crear();
+        if(!lista){
+            free(item);
+            return false;
         }
-        if(lista_iter_al_final(iter)){
-            lista_insertar(iter,item);
+        lista_insertar_primero(lista, item);
+        hash->tabla[clave_h] = lista;
+    } else {
+        lista_iter_t *iter = lista_iter_crear(hash->tabla[clave_h]);
+        while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
+            lista_iter_avanzar(iter);
         }
-        ((hash_item_t*) iter_ver_actual(iter))->valor=dato;
+        if (lista_iter_al_final(iter)) {
+            lista_iter_insertar(iter, item);
+        } else {
+            ((hash_item_t *) iter_ver_actual(iter))->valor = dato;
+            free(item);
+        }
         lista_iter_destruir(iter);
-        return true;
     }
-    return false;
+    return true;
 
 }//valor se libera
 
-bool hash_pertenece(const hash_t *hash, const char *clave){
-    size_t clave_h=hash_value(hash,clave); 
-    if(!hash->tabla[clave_h]){
+bool hash_pertenece(const hash_t *hash, const char *clave) {
+    size_t clave_h = hash_value(hash, clave);
+    if (!hash->tabla[clave_h]) {
         return false;
     }
-    lista_t* lista=hash->tabla[clave_h];
-    lista_iter* iter=lista_iter_crear(lista);
+    lista_t *lista = hash->tabla[clave_h];
+    lista_iter *iter = lista_iter_crear(lista);
 
-    while(!lista_iter_al_final(iter)){
-        if (strcmp((hash_item*(lista_iter_ver_actual(iter)))->clave,clave))
+    while (!lista_iter_al_final(iter)) {
+        if (strcmp((hash_item * (lista_iter_ver_actual(iter)))->clave, clave) == 0) {
             return true;
+        }
         lista_iter_avanzar(iter);
     }
     return false;
