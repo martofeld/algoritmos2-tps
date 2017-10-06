@@ -147,3 +147,5 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
     }
     return false;
 }
+
+typedef 
