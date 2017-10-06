@@ -51,34 +51,40 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
 
 void *hash_obtener(const hash_t *hash, const char *clave) {
     size_t hash_key = hash_value(hash, clave);
-    lista_t *list = hash->tabla[hash_key];
-    if (list) {
-        lista_iter_t *iter = lista_iter_crear(list);
-        while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
-            lista_iter_avanzar(iter);
-        }
-        if (lista_iter_al_final(iter)){
+    lista_t *lista = hash->tabla[hash_key];
+    if (lista) {
+        lista_iter_t *iter = buscar(lista, clave);
+        if (lista_iter_al_final(iter)) {
             return NULL;
         }
-        return lista_iter_ver_actual(iter)->valor;
+        void *valor = lista_iter_ver_actual(iter)->valor;
+        lista_iter_destruir(iter);
+        return valor;
     }
     return NULL;
 }
 
 void *hash_borrar(hash_t *hash, const char *clave) {
     size_t hash_key = hash_value(hash, clave);
-    lista_t *list = hash->tabla[hash_key];
-    if (list) {
-        lista_iter_t *iter = lista_iter_crear(list);
-        while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
-            lista_iter_avanzar(iter);
-        }
-        if (lista_iter_al_final(iter)){
+    lista_t *lista = hash->tabla[hash_key];
+    if (lista) {
+        lista_iter_t* iter = buscar(lista, clave);
+        if (lista_iter_al_final(iter)) {
             return NULL;
         }
-        return ((hash_item_t*)lista_iter_borrar(iter))->valor;
+        void *valor = ((hash_item_t *) lista_iter_borrar(iter))->valor;
+        lista_iter_destruir(iter);
+        return valor;
     }
     return NULL;
+}
+
+lista_iter_t *buscar(lista_t *lista, const char *clave) {
+    lista_iter_t *iter = lista_iter_crear(lista);
+    while (!lista_iter_al_final(iter) && strcmp(lista_iter_ver_actual(iter)->clave, clave) != 0) {
+        lista_iter_avanzar(iter);
+    }
+    return iter;
 }
 
 size_t hash_cantidad(const hash_t *hash) {
