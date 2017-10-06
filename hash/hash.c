@@ -40,9 +40,6 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
     }
 
     hash->tabla = malloc(sizeof(hash_item_t) * CAPACIDAD_INICIAL);
-    for (int i = 0; i < CAPACIDAD_INICIAL; i++) {
-        hash->tabla[i] = lista_crear();
-    }
     hash->n = 0;
     hash->m = CAPACIDAD_INICIAL;
     hash->destruir_dato = destruir_dato;
@@ -86,7 +83,7 @@ size_t hash_cantidad(const hash_t *hash) {
 }
 
 hash_item_t* crear_hash_item(const char *clave, void *dato){
-    hash_item_t* item= malloc(size_of(hash_item_t));
+    hash_item_t* item= malloc(sizeof(hash_item_t));
     if (!item)
         return NULL:
     item->clave=clave;
