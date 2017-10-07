@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stdio.h"
+#include "strcopy.h"
 
 // strtok?
 char** split(const char* str, char sep){
@@ -29,6 +30,17 @@ char** split(const char* str, char sep){
     }
     array[currentArrayPosition] = NULL;
     return array;  
+}
+
+char* strcopy(const char* src){
+    char* dest = malloc(sizeof(char) * (strlen(src) + 1));
+    int i = 0;
+    while(src[i]){
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
+    return dest;
 }
 
 void free_strv(char *strv[]){

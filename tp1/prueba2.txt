@@ -2,4 +2,3 @@ agregar_pago 1 10.02 0;14f6c9dae22;validar_usuario;1;916f4c31aaa;validar_usuario
 procesar 1
 guardar_cuentas cuentas_out2.csv
 finalizar
-

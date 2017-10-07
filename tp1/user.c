@@ -3,6 +3,8 @@
 //
 #include "user.h"
 #include "stdlib.h"
+#include "stdio.h"
+#include "strcopy.h"
 
 struct user {
     int id;
@@ -17,7 +19,7 @@ user_t *create_user(int id, char *password, double balance) {
     }
 
     user->id=id;
-    user->password = password;
+    user->password = strcopy(password);
     user->balance = balance;
     return user;
 }
@@ -39,5 +41,6 @@ void user_set_balance(user_t *user, double balance) {
 }
 
 void destroy_user(user_t *user) {
+    free(user->password);
     free(user);
 }

@@ -3,6 +3,9 @@
 //
 #include "payment.h"
 #include "stdlib.h"
+#include "stdio.h"
+#include "strcopy.h"
+
 
 struct payment {
     int id;
@@ -17,7 +20,7 @@ payment_t *create_payment(int id, char *code, double amount) {
     }
 
     payment->amount = amount;
-    payment->code = code;
+    payment->code = strcopy(code);
     payment->id = id;
     return payment;
 }
@@ -35,5 +38,6 @@ double payment_get_amount(payment_t *payment) {
 }
 
 void destroy_payment(payment_t *payment) {
+    free(payment->code);
     free(payment);
 }

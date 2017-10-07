@@ -104,17 +104,24 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
         bool payment_success = true;
         while (splited_code[i] && payment_success) {
             if (strcmp(splited_code[i], VALIDATE_USER) == 0) {
-                if (!validate_user(users, pila_desapilar(stack), pila_desapilar(stack))) {
+                void* coordinates = pila_desapilar(stack);
+                void* id = pila_desapilar(stack);
+                if (!validate_user(users, coordinates, id)) {
                     fprintf(stderr, "Error en pago %d, usuario invalido\n", payment_get_id(payment));
                     payment_success = false;
                 }
             } else if (strcmp(splited_code[i], VALIDATE_PAYMENT) == 0) {
-                if (!validate_payment(users, pila_desapilar(stack), pila_desapilar(stack))) {
+                void* amount = pila_desapilar(stack);
+                void* id = pila_desapilar(stack);
+                if (!validate_payment(users, amount, id)) {
                     fprintf(stderr, "Error en pago %d, fondos insuficientes\n", payment_get_id(payment));
                     payment_success = false;
                 }
             } else if (strcmp(splited_code[i], PAY) == 0) {
-                if (!do_pay(users, pila_desapilar(stack), pila_desapilar(stack), pila_desapilar(stack))) {
+                void* id1 = pila_desapilar(stack);
+                void* id2 = pila_desapilar(stack);
+                void* amount = pila_desapilar(stack);
+                if (!do_pay(users, id1, id2, amount)) {
                     fprintf(stderr, "Error en pago %d\n", payment_get_id(payment));
                     payment_success = false;
                 }
@@ -125,6 +132,8 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
         }
         n--;
         free_strv(splited_code);
+        destroy_payment(payment);
+        pila_destruir(stack);
     }
     printf("OK\n");
 }
@@ -173,38 +182,40 @@ int handle_input(char *line, cola_t *payment_queue, user_t **users) {
     char **splited = split(line, ' ');
     size_t length = 1;
     while (splited[length - 1]) {
-        length++;
+        length++; //Cuento los parametros
     }
+    
+    int return_code = 0;
     if (strcmp(splited[0], NEW_PAYMENT) == 0) {
         if (length == 5) { // Because of NULL
             new_payment(atoi(splited[1]), atof(splited[2]), splited[3], payment_queue);
         } else {
             fprintf(stderr, "Error en comando %s\n", NEW_PAYMENT);
-            return -1;
+            return_code = -1;
         }
     } else if (strcmp(splited[0], PROCESS) == 0) {
         if (length == 3) {
             process_payments(atoi(splited[1]), payment_queue, users);
         } else {
             fprintf(stderr, "Error en comando %s\n", PROCESS);
-            return -1;
+            return_code = -1;
         }
     } else if (strcmp(splited[0], SAVE) == 0) {
         if (length == 3) {
             save(splited[1], users);
         } else {
             fprintf(stderr, "Error en comando %s\n", SAVE);
-            return -1;
+            return_code = -1;
         }
     } else if (strcmp(splited[0], VIEW_PENDING) == 0) {
         view_pending(payment_queue);
     } else if (strcmp(splited[0], QUIT) == 0) {
-        return -1; // Salgo para volver atras y liberar toda la memoria
+        return_code = -1; // Salgo para volver atras y liberar toda la memoria
     } else {
         printf("Comando no reconocido\n");
     }
     free_strv(splited);
-    return 0;
+    return return_code;
 }
 
 user_t *create_user_from_file(char *line) {
