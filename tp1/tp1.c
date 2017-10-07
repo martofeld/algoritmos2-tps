@@ -47,8 +47,8 @@ void new_payment(int id, double amount, char *code, cola_t *payment_queue) {
  * @return
  */
 bool validate_user(user_t **users, void *coordinates, void *id) {
-    char *coordinates_str = *(char **) coordinates;
-    int id_int = atoi(*(char **) id);
+    char *coordinates_str = coordinates;
+    int id_int = atoi((char*) id);
     user_t *user = users[id_int];
     return user && strcmp(user_get_password(user), coordinates_str) == 0 && user_get_id(user) == id_int;
 }
@@ -61,8 +61,8 @@ bool validate_user(user_t **users, void *coordinates, void *id) {
  * @return
  */
 bool validate_payment(user_t **users, void *amount, void *id) {
-    double amount_int = atof(*(char **) amount);
-    int id_int = atoi(*(char **) id);
+    double amount_int = atof((char*) amount);
+    int id_int = atoi((char*) id);
     user_t *user = users[id_int];
     return user && user_get_balance(user) >= amount_int && user_get_id(user) == id_int;
 }
@@ -76,9 +76,9 @@ bool validate_payment(user_t **users, void *amount, void *id) {
  * @return
  */
 bool do_pay(user_t **users, void *user1_id, void *user2_id, void *amount) {
-    int user1_id_int = atoi(*(char **) user1_id);//PORQUE ESTO ES UN CHAR**???
-    int user2_id_int = atoi(*(char **) user2_id);
-    double amount_int = atof(*(char **) amount);
+    int user1_id_int = atoi((char*) user1_id);//PORQUE ESTO ES UN CHAR**???
+    int user2_id_int = atoi((char*) user2_id);
+    double amount_int = atof((char*) amount);
     user_t *user2 = users[user2_id_int];
     user_t *user1 = users[user1_id_int];
     if (!user2 || !user1) {
@@ -119,7 +119,7 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
                     payment_success = false;
                 }
             } else {
-                pila_apilar(stack, &splited_code[i]);
+                pila_apilar(stack, splited_code[i]);
             }
             i++;
         }
@@ -234,7 +234,6 @@ user_t **read_users(const char *file_path) {
         printf("Error while opening the file\n");
         return NULL;
     }
-    printf("File opened\n");
     size_t lines = count_lines(file_path);
 
     char *line = NULL;
