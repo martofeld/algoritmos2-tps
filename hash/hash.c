@@ -87,7 +87,9 @@ hash_item_t *crear_hash_item(const char *clave, void *dato) {
     if (!item) {
         return NULL;
     }
-    item->clave = clave;
+    size_t largo= strlen(clave);
+    char* clave_aux= malloc(sizeof(char)*largo);
+    item->clave = clave_aux;
     item->valor = dato;
     return item;
 }
@@ -148,4 +150,55 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
     return false;
 }
 
-typedef 
+typedef struct has_iter{
+    hash_t* hash;
+    size_t iterados;
+    size_t indice;
+    iter_lista_t* iter_lista;
+
+}hash_iter_t;
+
+hash_iter_t *hash_iter_crear(const hash_t *hash){
+    hash_iter_t* iter= malloc(sizeof(hash_iter_t));
+    if (!iter){
+        return NULL;
+    }
+    iter->hash= hash;
+    iter->iterados=0;
+    size_t aux=0;
+    while(lista_esta_vacia(hash->tabla[aux])){
+        aux++;
+    }
+    iter->indice=aux;
+    lista_t* lista= hash->tabla[aux];
+    lista_iter_t* iter_lista= lista_iter_crear(lista);
+    //validar que iter_lista fue creado
+    iter->iter_lista=iter_lista;
+    return iter;    
+}
+
+
+bool hash_iter_al_final(const hash_iter_t *iter){
+    return iter->iterados==iter->hash->n;
+}
+
+bool hash_iter_avanzar(hash_iter_t *iter){
+    if(hash_iter_al_final(iter)){
+        return false;
+    }
+    if(!lista_iter_al_final(iter->iter_lista)){
+        lista_iter_avanzar(iter->iter_lista);
+    }
+    else{
+        lista_iter_destruir(iter->iter_lista);
+        iter->indice++;
+        while(lista_esta_vacia(iter->hash->tabla[iter->indice])){ 
+            iter->indice++;      
+        }
+        lista_t* lista= hash->tabla[iter->indice];
+        iter_lista_t* iter_lista= lista_iter_crear(lista);
+        iter->iter_lista=iter_lista;
+    }
+    iter->iterados++;
+    return true;
+} //validar si se crean iteradores?
