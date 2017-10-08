@@ -198,7 +198,9 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
     size_t clave_h = hash_value(hash, clave);
     lista_t *lista = hash->tabla[clave_h];
     lista_iter_t *iter = buscar(lista, clave);
-    return !lista_iter_al_final(iter);
+    bool pertenece = !lista_iter_al_final(iter);
+    lista_iter_destruir(iter);
+    return pertenece;
 }
 
 /**
@@ -208,12 +210,10 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
 void hash_destruir(hash_t *hash) {
     for (int i = 0; i < hash->m; i++) {
         lista_t *lista = hash->tabla[i];
-        lista_iter_t *iter = lista_iter_crear(lista);
-        while (!lista_iter_al_final(iter)) {
-            hash_item_destruir((hash_item_t *) lista_iter_borrar(iter), hash->destruir_dato);
+        while (lista_ver_primero(lista)) {
+            hash_item_destruir((hash_item_t *) lista_borrar_primero(lista), hash->destruir_dato);
         }
         lista_destruir(lista, NULL);
-        lista_iter_destruir(iter);
     }
     free(hash->tabla);
     free(hash);
@@ -236,8 +236,12 @@ struct hash_iter {
  * @return la lista
  */
 lista_t *buscar_proximo(hash_iter_t *iter) {
-    while (lista_esta_vacia(iter->hash->tabla[iter->indice])) {
+    while (!hash_iter_al_final(iter) && lista_esta_vacia(iter->hash->tabla[iter->indice])) {
         iter->indice++;
+    }
+
+    if(hash_iter_al_final(iter)){
+        return NULL;
     }
     return iter->hash->tabla[iter->indice];
 }
@@ -256,9 +260,9 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
     iter->iterados = 0;
     iter->indice = 0;
     lista_t *lista = buscar_proximo(iter);
-    lista_iter_t *iter_lista = lista_iter_crear(lista);
-    if (!iter_lista) {
-        return NULL;
+    lista_iter_t *iter_lista = NULL;
+    if(lista){
+        iter_lista = lista_iter_crear(lista);
     }
     iter->iter_lista = iter_lista;
     return iter;
@@ -270,7 +274,7 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
  * @return
  */
 bool hash_iter_al_final(const hash_iter_t *iter) {
-    return iter->iterados == iter->hash->n;
+    return !iter->iter_lista || iter->iterados == iter->hash->n || iter->indice == iter->hash->m - 1;
 }
 
 /**
@@ -297,6 +301,10 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
 }
 
 const char *hash_iter_ver_actual(const hash_iter_t *iter){
+    // Devuelvo esto directo
+    if(hash_iter_al_final(iter)){
+        return NULL;
+    }
     return ((hash_item_t*)lista_iter_ver_actual(iter->iter_lista))->clave;
 }
 
