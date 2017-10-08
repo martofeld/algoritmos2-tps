@@ -46,7 +46,7 @@ void hash_item_destruir(hash_item_t *item, hash_destruir_dato_t destruir_dato) {
     if (destruir_dato) {
         destruir_dato(item->valor);
     }
-    //free(item->clave);
+    free(item->clave);
     free(item);
 }
 
@@ -104,17 +104,15 @@ hash_item_t *crear_hash_item(const char *clave, void *dato) {
     if (!item) {
         return NULL;
     }
-    item->clave = clave; // Esto hay que copiarlo?
+    size_t largo= strlen(clave);
+    char* clave_aux= malloc(sizeof(char)*(largo+1));
+    strcpy(clave_aux,clave);
+    item->clave = clave_aux;
     item->valor = dato;
     return item;
 }
 
-/**
- * Inserta un nodo a la lista..., si la clave se repite reemplaza
- * por el valor nuevo.
- * Pre: el hash fue creado.
- * Pos: Inserto un nodo con clave valor asociado.
- */
+
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
     hash_item_t *item = crear_hash_item(clave, dato);
     if (!item) {
@@ -157,22 +155,59 @@ void hash_destruir(hash_t *hash) {
     free(hash);
 }
 
-hash_iter_t *hash_iter_crear(const hash_t *hash) {
-    return NULL;
+typedef struct hash_iter{
+    hash_t* hash;
+    size_t iterados;
+    size_t indice;
+    iter_lista_t* iter_lista;
+
+}hash_iter_t;
+
+hash_iter_t *hash_iter_crear(const hash_t *hash){
+    hash_iter_t* iter= malloc(sizeof(hash_iter_t));
+    if (!iter){
+        return NULL;
+    }
+    iter->hash= hash;
+    iter->iterados=0;
+    iter->indice=0;
+    lista_t* lista= buscar_proximo(hash, iter->indice);
+    lista_iter_t* iter_lista= lista_iter_crear(lista);
+    if (!iter_lista){
+        return NULL;
+    }
+    iter->iter_lista=iter_lista;
+    return iter;    
 }
 
-bool hash_iter_avanzar(hash_iter_t *iter) {
-    return NULL;
+
+bool hash_iter_al_final(const hash_iter_t *iter){
+    return iter->iterados==iter->hash->n;
 }
 
-const char *hash_iter_ver_actual(const hash_iter_t *iter) {
-    return NULL;
-}
+bool hash_iter_avanzar(hash_iter_t *iter){
+    if(hash_iter_al_final(iter)){
+        return false;
+    }
+    if(lista_iter_al_final(iter->iter_lista)){
+        lista_iter_destruir(iter->iter_lista);
+        iter->indice++;
+        lista_t* lista= buscar_proximo(iter, iter->indice);
+        iter_lista_t* iter_lista= lista_iter_crear(lista);
+        if(!iter){
+            return false;
+        }
+        iter->iter_lista=iter_lista;
+    }
+    iter->iterados++;
+    return lista_iter_avanzar(iter->iter_lista);
+} 
 
-bool hash_iter_al_final(const hash_iter_t *iter) {
-    return NULL;
-}
-
-void hash_iter_destruir(hash_iter_t *iter) {
-
+lista_t* buscar_proximo(hash_iter_t* iter, int indice){
+    while(lista_esta_vacia(iter->hash->tabla[indice])){
+        indice++;
+    }
+    iter->indice=indice;
+    return iter->hash->tabla[indice];
+>>>>>>> e45f422bc7e49b93c5a3f043391d2e6d3127e40e
 }
