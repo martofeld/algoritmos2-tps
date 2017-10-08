@@ -89,18 +89,13 @@ hash_item_t *crear_hash_item(const char *clave, void *dato) {
     }
     size_t largo= strlen(clave);
     char* clave_aux= malloc(sizeof(char)*(largo+1));
-    clave_aux= clave;
+    strcpy(clave_aux,clave);
     item->clave = clave_aux;
     item->valor = dato;
     return item;
 }
 
-/**
- * Inserta un nodo a la lista..., si la clave se repite reemplaza
- * por el valor nuevo.
- * Pre: el hash fue creado.
- * Pos: Inserto un nodo con clave valor asociado.
- */
+
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
     hash_item_t *item = crear_hash_item(clave, dato);
     if (!item) {
@@ -166,7 +161,8 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
     }
     iter->hash= hash;
     iter->iterados=0;
-    lista_t* lista= buscar_proximo(hash, 0);
+    iter->indice=0;
+    lista_t* lista= buscar_proximo(hash, iter->indice);
     lista_iter_t* iter_lista= lista_iter_crear(lista);
     if (!iter_lista){
         return NULL;
@@ -187,7 +183,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){
     if(lista_iter_al_final(iter->iter_lista)){
         lista_iter_destruir(iter->iter_lista);
         iter->indice++;
-        lista_t* lista= buscar_proximo(hash, iter->indice);
+        lista_t* lista= buscar_proximo(iter, iter->indice);
         iter_lista_t* iter_lista= lista_iter_crear(lista);
         if(!iter){
             return false;
@@ -198,9 +194,10 @@ bool hash_iter_avanzar(hash_iter_t *iter){
     return lista_iter_avanzar(iter->iter_lista);
 } 
 
-lista_t* buscar_proximo(hash_t* hash, size_t indice){
-    while(lista_esta_vacia(hash->tabla[indice])){
+lista_t* buscar_proximo(hash_iter_t* iter, int indice){
+    while(lista_esta_vacia(iter->hash->tabla[indice])){
         indice++;
     }
-    return hash->tabla[indice];
+    iter->indice=indice;
+    return iter->hash->tabla[indice];
 }
