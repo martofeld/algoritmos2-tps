@@ -138,7 +138,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
     lista_t *lista = hash->tabla[hash_key];
 
     lista_iter_t *iter = buscar(lista, clave);
-    void* valor;
+    void *valor;
     if (lista_iter_al_final(iter)) {
         valor = NULL;
     } else {
@@ -225,7 +225,7 @@ struct hash_iter {
     hash_t *hash;
     size_t iterados;
     size_t indice;
-    iter_lista_t *iter_lista;
+    lista_iter_t *iter_lista;
 
 };
 
@@ -235,12 +235,11 @@ struct hash_iter {
  * @param indice el indice desde donde empezar
  * @return la lista
  */
-lista_t *buscar_proximo(hash_iter_t *iter, int indice) {
-    while (lista_esta_vacia(iter->hash->tabla[indice])) {
-        indice++;
+lista_t *buscar_proximo(hash_iter_t *iter) {
+    while (lista_esta_vacia(iter->hash->tabla[iter->indice])) {
+        iter->indice++;
     }
-    iter->indice = indice;
-    return iter->hash->tabla[indice];
+    return iter->hash->tabla[iter->indice];
 }
 
 /**
@@ -248,7 +247,7 @@ lista_t *buscar_proximo(hash_iter_t *iter, int indice) {
  * @param hash
  * @return
  */
-hash_iter_t *hash_iter_crear(const hash_t *hash) {
+hash_iter_t *hash_iter_crear(hash_t *hash) {
     hash_iter_t *iter = malloc(sizeof(hash_iter_t));
     if (!iter) {
         return NULL;
@@ -256,7 +255,7 @@ hash_iter_t *hash_iter_crear(const hash_t *hash) {
     iter->hash = hash;
     iter->iterados = 0;
     iter->indice = 0;
-    lista_t *lista = buscar_proximo(hash, iter->indice);
+    lista_t *lista = buscar_proximo(iter);
     lista_iter_t *iter_lista = lista_iter_crear(lista);
     if (!iter_lista) {
         return NULL;
@@ -286,8 +285,8 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
     if (lista_iter_al_final(iter->iter_lista)) {
         lista_iter_destruir(iter->iter_lista);
         iter->indice++;
-        lista_t *lista = buscar_proximo(iter, iter->indice);
-        iter_lista_t *iter_lista = lista_iter_crear(lista);
+        lista_t *lista = buscar_proximo(iter);
+        lista_iter_t *iter_lista = lista_iter_crear(lista);
         if (!iter_lista) {
             return false;
         }
@@ -295,5 +294,16 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
     }
     iter->iterados++;
     return lista_iter_avanzar(iter->iter_lista);
+}
+
+const char *hash_iter_ver_actual(const hash_iter_t *iter){
+    return ((hash_item_t*)lista_iter_ver_actual(iter->iter_lista))->clave;
+}
+
+void hash_iter_destruir(hash_iter_t* iter){
+    if(iter->iter_lista){
+        lista_iter_destruir(iter->iter_lista);
+    }
+    free(iter);
 }
 // ----------------- END HASH ITERATOR -----------------
