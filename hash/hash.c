@@ -274,7 +274,7 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
  * @return
  */
 bool hash_iter_al_final(const hash_iter_t *iter) {
-    return !iter->iter_lista || iter->iterados == iter->hash->n || iter->indice == iter->hash->m - 1;
+    return !iter->iter_lista || iter->iterados == iter->hash->n || iter->indice == iter->hash->m;
 }
 
 /**
@@ -286,18 +286,23 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
     if (hash_iter_al_final(iter)) {
         return false;
     }
+    iter->iterados++;
+    lista_iter_avanzar(iter->iter_lista);
     if (lista_iter_al_final(iter->iter_lista)) {
         lista_iter_destruir(iter->iter_lista);
         iter->indice++;
         lista_t *lista = buscar_proximo(iter);
+        if(!lista){ // Si la lista es NULL el iterador esta al final
+            iter->iter_lista = NULL;
+            return false;
+        }
         lista_iter_t *iter_lista = lista_iter_crear(lista);
         if (!iter_lista) {
             return false;
         }
         iter->iter_lista = iter_lista;
     }
-    iter->iterados++;
-    return lista_iter_avanzar(iter->iter_lista);
+    return true;
 }
 
 const char *hash_iter_ver_actual(const hash_iter_t *iter){
