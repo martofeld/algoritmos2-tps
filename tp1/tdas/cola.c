@@ -1,6 +1,28 @@
 #include <stdlib.h>
 #include "cola.h"
-#include "nodo.h"
+
+typedef struct nodo nodo_t;
+struct nodo {
+    void *dato;
+    nodo_t *proximo;
+};
+
+nodo_t *nodo_crear(void *valor, nodo_t* proximo) {
+    nodo_t *nodo = malloc(sizeof(nodo_t));
+
+    if (!nodo) {
+        return NULL;
+    }
+
+    nodo->dato = valor;
+    nodo->proximo = proximo;
+    return nodo;
+}
+
+void nodo_destruir(nodo_t *nodo) {
+    free(nodo);
+}
+
 
 struct cola {
     nodo_t *primero;
