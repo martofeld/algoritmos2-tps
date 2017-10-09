@@ -40,8 +40,8 @@ void hash_item_destruir(hash_item_t *item, hash_destruir_dato_t destruir_dato) {
 // ----------------- HASH -----------------
 struct hash {
     lista_t **tabla;
-    size_t n; // Cantidad
-    size_t m; // Capacidad
+    size_t cantidad; // Cantidad
+    size_t capacidad; // Capacidad
     hash_destruir_dato_t destruir_dato;
 };
 
@@ -67,7 +67,7 @@ size_t fnv1a_hash(const char *cp) {
  * @return
  */
 size_t hash_value(const hash_t *hash, const char *clave) {
-    return fnv1a_hash(clave) % hash->m;
+    return fnv1a_hash(clave) % hash->capacidad;
 }
 
 /**
@@ -100,8 +100,8 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
     for (int i = 0; i < CAPACIDAD_INICIAL; i++) {
         hash->tabla[i] = lista_crear();
     }
-    hash->n = 0;
-    hash->m = CAPACIDAD_INICIAL;
+    hash->cantidad = 0;
+    hash->capacidad = CAPACIDAD_INICIAL;
     hash->destruir_dato = destruir_dato;
     return hash;
 }
@@ -145,7 +145,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
         hash_item_t *item = lista_iter_borrar(iter);
         valor = item->valor;
         hash_item_destruir(item, NULL);
-        hash->n--;
+        hash->cantidad--;
     }
     lista_iter_destruir(iter);
     return valor;
@@ -157,7 +157,7 @@ void *hash_borrar(hash_t *hash, const char *clave) {
  * @return
  */
 size_t hash_cantidad(const hash_t *hash) {
-    return hash->n;
+    return hash->cantidad;
 }
 
 /**
@@ -178,10 +178,10 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
     lista_iter_t *iter = buscar(lista, clave);
     if (!lista_iter_al_final(iter)) {
         hash_item_t *item_viejo = lista_iter_borrar(iter);
-        hash->n--;
+        hash->cantidad--;
         hash_item_destruir(item_viejo, hash->destruir_dato);
     }
-    hash->n++;
+    hash->cantidad++;
     lista_iter_insertar(iter, item);
     lista_iter_destruir(iter);
     return true;
@@ -208,7 +208,7 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
  * @param hash
  */
 void hash_destruir(hash_t *hash) {
-    for (int i = 0; i < hash->m; i++) {
+    for (int i = 0; i < hash->capacidad; i++) {
         lista_t *lista = hash->tabla[i];
         while (lista_ver_primero(lista)) {
             hash_item_destruir((hash_item_t *) lista_borrar_primero(lista), hash->destruir_dato);
@@ -274,8 +274,7 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
  * @return
  */
 bool hash_iter_al_final(const hash_iter_t *iter) {
-    return iter->iterados == iter->hash->n ||
-            iter->indice == iter->hash->m;
+    return iter->iterados == iter->hash->cantidad || iter->indice == iter->hash->capacidad;
 }
 
 /**
