@@ -162,6 +162,7 @@ void view_pending(cola_t *payment_queue) {
     while (!cola_esta_vacia(aux_queue)){
         cola_encolar(payment_queue, cola_desencolar(aux_queue));
     }
+    cola_destruir(aux_queue, NULL);
     printf("%d,%.3f\n", count, amount);
 }
 
