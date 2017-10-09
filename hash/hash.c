@@ -274,7 +274,8 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
  * @return
  */
 bool hash_iter_al_final(const hash_iter_t *iter) {
-    return !iter->iter_lista || iter->iterados == iter->hash->n || iter->indice == iter->hash->m;
+    return iter->iterados == iter->hash->n ||
+            iter->indice == iter->hash->m;
 }
 
 /**
