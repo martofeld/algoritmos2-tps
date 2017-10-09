@@ -1,7 +1,7 @@
 //
 // Created by Martin Feldsztejn on 9/30/17.
 //
-#define POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 200809L
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -32,11 +32,7 @@
  */
 void new_payment(int id, double amount, char *code, cola_t *payment_queue) {
     payment_t *payment = create_payment(id, code, amount);
-    if (payment && cola_encolar(payment_queue, payment)) {
-        printf("OK\n");
-    } else {
-        printf("Error al agregar pago %d\n", id);
-    }
+    cola_encolar(payment_queue, payment);
 }
 
 /**
@@ -76,7 +72,7 @@ bool validate_payment(user_t **users, void *amount, void *id) {
  * @return
  */
 bool do_pay(user_t **users, void *user1_id, void *user2_id, void *amount) {
-    int user1_id_int = atoi((char*) user1_id);//PORQUE ESTO ES UN CHAR**???
+    int user1_id_int = atoi((char*) user1_id);
     int user2_id_int = atoi((char*) user2_id);
     double amount_int = atof((char*) amount);
     user_t *user2 = users[user2_id_int];
@@ -107,14 +103,14 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
                 void* coordinates = pila_desapilar(stack);
                 void* id = pila_desapilar(stack);
                 if (!validate_user(users, coordinates, id)) {
-                    fprintf(stderr, "Error en pago %d, usuario invalido\n", payment_get_id(payment));
+                    fprintf(stderr, "Error en pago %d\n", payment_get_id(payment));
                     payment_success = false;
                 }
             } else if (strcmp(splited_code[i], VALIDATE_PAYMENT) == 0) {
                 void* amount = pila_desapilar(stack);
                 void* id = pila_desapilar(stack);
                 if (!validate_payment(users, amount, id)) {
-                    fprintf(stderr, "Error en pago %d, fondos insuficientes\n", payment_get_id(payment));
+                    fprintf(stderr, "Error en pago %d\n", payment_get_id(payment));
                     payment_success = false;
                 }
             } else if (strcmp(splited_code[i], PAY) == 0) {
@@ -135,7 +131,6 @@ void process_payments(int n, cola_t *payment_queue, user_t **users) {
         destroy_payment(payment);
         pila_destruir(stack);
     }
-    printf("OK\n");
 }
 
 /**
@@ -148,10 +143,9 @@ void save(char *file_name, user_t **users) {
     size_t i = 0;
     while (users[i]) {
         user_t *user = users[i];
-        fprintf(file, "%d,%.2f,%s\n", user_get_id(user), user_get_balance(user), user_get_password(user));
+        fprintf(file, "%d,%.3f,%s\n", user_get_id(user), user_get_balance(user), user_get_password(user));
         i++;
     }
-    printf("OK\n");
     fclose(file);
 }
 
@@ -168,7 +162,7 @@ void view_pending(cola_t *payment_queue) {
     while (!cola_esta_vacia(aux_queue)){
         cola_encolar(payment_queue, cola_desencolar(aux_queue));
     }
-    printf("Quedan %d pagos sin procesar por un total de %.2f\n", count, amount);
+    printf("%d,%.3f\n", count, amount);
 }
 
 /**
@@ -210,11 +204,15 @@ int handle_input(char *line, cola_t *payment_queue, user_t **users) {
     } else if (strcmp(splited[0], VIEW_PENDING) == 0) {
         view_pending(payment_queue);
     } else if (strcmp(splited[0], QUIT) == 0) {
-        return_code = -1; // Salgo para volver atras y liberar toda la memoria
+        return_code = 1; // Salgo para volver atras y liberar toda la memoria
     } else {
-        printf("Comando no reconocido\n");
+        fprintf(stderr, "Error en comando %s\n", splited[0]);
+        return_code = -1;
     }
     free_strv(splited);
+    if(return_code >= 0) {
+        printf("OK\n");
+    }
     return return_code;
 }
 
@@ -293,10 +291,8 @@ int run(const char *file_path) {
     }
     free(line);
     cola_destruir(payments_queue, destroy_payments);
-    int i = 0;
-    while (users[i]) {
+    for (int i = 0; users[i]; i++) {
         destroy_user(users[i]);
-        i++;
     }
     free(users);
     return 0;
