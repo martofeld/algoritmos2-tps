@@ -1,5 +1,6 @@
 //
-// Created by Martin Feldsztejn on 10/5/17.
+// Created by Martin Feldsztejn (101320) and Milena Marchese (100962).
+// Corrector: Matías Cano
 //
 
 #include "hash.h"
@@ -8,6 +9,8 @@
 #include <string.h>
 
 #define CAPACIDAD_INICIAL 10
+#define MULTIPLICADOR 2
+#define FACTOR_DE_CARGA 3
 
 // ----------------- HASH ITEM -----------------
 typedef struct hash_item {
@@ -66,8 +69,8 @@ size_t fnv1a_hash(const char *cp) {
  * @param clave
  * @return
  */
-size_t hash_value(const hash_t *hash, const char *clave) {
-    return fnv1a_hash(clave) % hash->capacidad;
+size_t hash_value(const size_t capacidad, const char *clave) {
+    return fnv1a_hash(clave) % capacidad;
 }
 
 /**
@@ -83,6 +86,28 @@ lista_iter_t *buscar(lista_t *lista, const char *clave) {
         lista_iter_avanzar(iter);
     }
     return iter;
+}
+
+bool hash_redimensionar(hash_t *hash, size_t tamano) {
+    lista_t **tabla_nueva = malloc(sizeof(hash_item_t) * tamano);
+    if(!tabla_nueva){
+        return false;
+    }
+    for (int i = 0; i < tamano; i++) {
+        tabla_nueva[i] = lista_crear();
+    }
+    for (int i = 0; i < hash->capacidad; i++) {
+        while (!lista_esta_vacia(hash->tabla[i])) {
+            hash_item_t *item = lista_borrar_primero(hash->tabla[i]);
+            size_t posicion = hash_value(tamano, item->clave);
+            lista_insertar_ultimo(tabla_nueva[posicion], item);
+        }
+        lista_destruir(hash->tabla[i], NULL);
+    }
+    free(hash->tabla);
+    hash->capacidad = tamano;
+    hash->tabla = tabla_nueva;
+    return true;
 }
 
 /**
@@ -113,7 +138,7 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato) {
  * @return El elemento si estuviera o NULL si no hay nada
  */
 void *hash_obtener(const hash_t *hash, const char *clave) {
-    size_t hash_key = hash_value(hash, clave);
+    size_t hash_key = hash_value(hash->capacidad, clave);
     lista_t *lista = hash->tabla[hash_key];
 
     lista_iter_t *iter = buscar(lista, clave);
@@ -134,8 +159,11 @@ void *hash_obtener(const hash_t *hash, const char *clave) {
  * @return El elemento borrado
  */
 void *hash_borrar(hash_t *hash, const char *clave) {
-    size_t hash_key = hash_value(hash, clave);
+    size_t hash_key = hash_value(hash->capacidad, clave);
     lista_t *lista = hash->tabla[hash_key];
+    /*if (hash->cantidad / hash->capacidad == FACTOR_DE_CARGA) {
+        hash_redimensionar(hash, hash->capacidad / MULTIPLICADOR);
+    }*/
 
     lista_iter_t *iter = buscar(lista, clave);
     void *valor;
@@ -173,7 +201,11 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
         return false;
     }
 
-    size_t clave_h = hash_value(hash, clave);
+    if (hash->cantidad / hash->capacidad >= FACTOR_DE_CARGA) {
+        hash_redimensionar(hash, hash->capacidad * MULTIPLICADOR);
+    }
+
+    size_t clave_h = hash_value(hash->capacidad, clave);
     lista_t *lista = hash->tabla[clave_h];
     lista_iter_t *iter = buscar(lista, clave);
     if (!lista_iter_al_final(iter)) {
@@ -195,7 +227,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
  * @return
  */
 bool hash_pertenece(const hash_t *hash, const char *clave) {
-    size_t clave_h = hash_value(hash, clave);
+    size_t clave_h = hash_value(hash->capacidad, clave);
     lista_t *lista = hash->tabla[clave_h];
     lista_iter_t *iter = buscar(lista, clave);
     bool pertenece = !lista_iter_al_final(iter);
@@ -240,7 +272,7 @@ lista_t *buscar_proximo(hash_iter_t *iter) {
         iter->indice++;
     }
 
-    if(hash_iter_al_final(iter)){
+    if (hash_iter_al_final(iter)) {
         return NULL;
     }
     return iter->hash->tabla[iter->indice];
@@ -261,7 +293,7 @@ hash_iter_t *hash_iter_crear(hash_t *hash) {
     iter->indice = 0;
     lista_t *lista = buscar_proximo(iter);
     lista_iter_t *iter_lista = NULL;
-    if(lista){
+    if (lista) {
         iter_lista = lista_iter_crear(lista);
     }
     iter->iter_lista = iter_lista;
@@ -292,7 +324,7 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
         lista_iter_destruir(iter->iter_lista);
         iter->indice++;
         lista_t *lista = buscar_proximo(iter);
-        if(!lista){ // Si la lista es NULL el iterador esta al final
+        if (!lista) { // Si la lista es NULL el iterador esta al final
             iter->iter_lista = NULL;
             return false;
         }
@@ -305,16 +337,16 @@ bool hash_iter_avanzar(hash_iter_t *iter) {
     return true;
 }
 
-const char *hash_iter_ver_actual(const hash_iter_t *iter){
+const char *hash_iter_ver_actual(const hash_iter_t *iter) {
     // Devuelvo esto directo
-    if(hash_iter_al_final(iter)){
+    if (hash_iter_al_final(iter)) {
         return NULL;
     }
-    return ((hash_item_t*)lista_iter_ver_actual(iter->iter_lista))->clave;
+    return ((hash_item_t *) lista_iter_ver_actual(iter->iter_lista))->clave;
 }
 
-void hash_iter_destruir(hash_iter_t* iter){
-    if(iter->iter_lista){
+void hash_iter_destruir(hash_iter_t *iter) {
+    if (iter->iter_lista) {
         lista_iter_destruir(iter->iter_lista);
     }
     free(iter);
