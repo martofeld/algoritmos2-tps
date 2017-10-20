@@ -254,7 +254,7 @@ void hash_destruir(hash_t *hash) {
 
 // ----------------- HASH ITERATOR -----------------
 struct hash_iter {
-    hash_t *hash;
+    const hash_t *hash;
     size_t iterados;
     size_t indice;
     lista_iter_t *iter_lista;
@@ -283,7 +283,7 @@ lista_t *buscar_proximo(hash_iter_t *iter) {
  * @param hash
  * @return
  */
-hash_iter_t *hash_iter_crear(hash_t *hash) {
+hash_iter_t *hash_iter_crear(const hash_t *hash) {
     hash_iter_t *iter = malloc(sizeof(hash_iter_t));
     if (!iter) {
         return NULL;
