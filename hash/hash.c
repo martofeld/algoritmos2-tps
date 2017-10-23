@@ -50,15 +50,18 @@ struct hash {
 
 /**
  * Funcion de hashing para la clave
+ * La robe de https://stackoverflow.com/a/7666577
+ *
  * @param cp
  * @return
  */
-size_t fnv1a_hash(const char *cp) {
-    size_t hash = 0x811c9dc5;
-    while (*cp) {
-        hash ^= (unsigned char) *cp++;
-        hash *= 0x01000193;
-    }
+size_t djb2_hash(const char *cp) {
+    unsigned int hash = 5381;
+    int c;
+
+    while ((c = *cp++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
     return hash;
 }
 
@@ -70,7 +73,7 @@ size_t fnv1a_hash(const char *cp) {
  * @return
  */
 size_t hash_value(const size_t capacidad, const char *clave) {
-    return fnv1a_hash(clave) % capacidad;
+    return djb2_hash(clave) % capacidad;
 }
 
 /**
@@ -82,7 +85,8 @@ size_t hash_value(const size_t capacidad, const char *clave) {
  */
 lista_iter_t *buscar(lista_t *lista, const char *clave) {
     lista_iter_t *iter = lista_iter_crear(lista);
-    while (!lista_iter_al_final(iter) && strcmp(((hash_item_t *) lista_iter_ver_actual(iter))->clave, clave) != 0) {
+    while (!lista_iter_al_final(iter)
+           && strcmp(((hash_item_t *) lista_iter_ver_actual(iter))->clave, clave) != 0) {
         lista_iter_avanzar(iter);
     }
     return iter;
@@ -90,7 +94,7 @@ lista_iter_t *buscar(lista_t *lista, const char *clave) {
 
 bool hash_redimensionar(hash_t *hash, size_t tamano) {
     lista_t **tabla_nueva = malloc(sizeof(hash_item_t) * tamano);
-    if(!tabla_nueva){
+    if (!tabla_nueva) {
         return false;
     }
     for (int i = 0; i < tamano; i++) {
@@ -161,9 +165,9 @@ void *hash_obtener(const hash_t *hash, const char *clave) {
 void *hash_borrar(hash_t *hash, const char *clave) {
     size_t hash_key = hash_value(hash->capacidad, clave);
     lista_t *lista = hash->tabla[hash_key];
-    /*if (hash->cantidad / hash->capacidad == FACTOR_DE_CARGA) {
+    if (hash->cantidad / hash->capacidad == FACTOR_DE_CARGA) {
         hash_redimensionar(hash, hash->capacidad / MULTIPLICADOR);
-    }*/
+    }
 
     lista_iter_t *iter = buscar(lista, clave);
     void *valor;
@@ -196,25 +200,26 @@ size_t hash_cantidad(const hash_t *hash) {
  * @return
  */
 bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
-    hash_item_t *item = crear_hash_item(clave, dato);
-    if (!item) {
-        return false;
-    }
-
     if (hash->cantidad / hash->capacidad >= FACTOR_DE_CARGA) {
         hash_redimensionar(hash, hash->capacidad * MULTIPLICADOR);
     }
 
-    size_t clave_h = hash_value(hash->capacidad, clave);
-    lista_t *lista = hash->tabla[clave_h];
+    size_t hash_key = hash_value(hash->capacidad, clave);
+    lista_t *lista = hash->tabla[hash_key];
     lista_iter_t *iter = buscar(lista, clave);
     if (!lista_iter_al_final(iter)) {
-        hash_item_t *item_viejo = lista_iter_borrar(iter);
-        hash->cantidad--;
-        hash_item_destruir(item_viejo, hash->destruir_dato);
+        hash_item_t *item_viejo = lista_iter_ver_actual(iter);
+        if(hash->destruir_dato)
+            hash->destruir_dato(item_viejo->valor);
+        item_viejo->valor = dato;
+    } else {
+        hash_item_t *item = crear_hash_item(clave, dato);
+        if (!item) {
+            return false;
+        }
+        hash->cantidad++;
+        lista_iter_insertar(iter, item);
     }
-    hash->cantidad++;
-    lista_iter_insertar(iter, item);
     lista_iter_destruir(iter);
     return true;
 
@@ -227,8 +232,8 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato) {
  * @return
  */
 bool hash_pertenece(const hash_t *hash, const char *clave) {
-    size_t clave_h = hash_value(hash->capacidad, clave);
-    lista_t *lista = hash->tabla[clave_h];
+    size_t hash_key = hash_value(hash->capacidad, clave);
+    lista_t *lista = hash->tabla[hash_key];
     lista_iter_t *iter = buscar(lista, clave);
     bool pertenece = !lista_iter_al_final(iter);
     lista_iter_destruir(iter);
