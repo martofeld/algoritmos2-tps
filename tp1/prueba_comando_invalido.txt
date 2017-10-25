@@ -1,0 +1,4 @@
+agregar_pago 1 5.00 1;916f4c31aaa;validar_usuario;1;5.00;validar_pago;5.00;0;1;pagar
+procesar
+guardar_cuentas cuentas_out.csv
+finalizar
