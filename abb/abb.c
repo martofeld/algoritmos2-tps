@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
 #include "abb.h"
 #include "pila.h"
 
@@ -23,19 +24,20 @@ nodo_t *nodo_crear(const char *clave, void *valor) {
     if (!nodo) {
         return NULL;
     }
-    //TODO copiar la clave
-    nodo->clave = clave;
+    char *clave_aux = malloc(sizeof(char) * (strlen(clave) + 1));
+    strcpy(clave_aux, clave);
+    nodo->clave = clave_aux;
     nodo->valor = valor;
     nodo->der = NULL;
     nodo->izq = NULL;
+    return nodo;
 }
 
 void nodo_destruir(abb_destruir_dato_t destruir_dato, nodo_t *nodo) {
     if (destruir_dato) {
         destruir_dato(nodo->valor);
     }
-    //TODO descomentar cuando copie la clave
-    //nodo_clave_destruir(nodo->clave);
+    nodo_clave_destruir(nodo->clave);
 }
 
 struct abb {
@@ -196,9 +198,9 @@ void abb_destruir(abb_t *arbol) {
 }
 
 // ----------- ITERADOR -----------
-typedef struct abb_iter {
+struct abb_iter {
     pila_t *pila;
-} abb_iter_t;
+};
 
 void apilar_izquierdos(pila_t *pila, nodo_t *inicio) {
     nodo_t *actual = inicio;
