@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include "abb.h"
+#include "pila.h"
 
 typedef struct nodo nodo_t;
 struct nodo {
@@ -110,9 +111,70 @@ void *abb_obtener_nodo(const abb_t *abb, nodo_t *nodo, const char *clave) {
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave) {
-    nodo_t* nodo = abb_obtener_nodo(arbol, arbol->raiz, clave);
-    if(nodo){
+    nodo_t *nodo = abb_obtener_nodo(arbol, arbol->raiz, clave);
+    if (nodo) {
         return nodo->valor;
     }
     return NULL;
 }
+
+bool abb_pertenece(const abb_t *arbol, const char *clave) {
+    nodo_t *nodo = abb_obtener_nodo(arbol, arbol->raiz, clave);
+    return nodo != NULL;
+}
+
+// ----------- ITERADOR -----------
+typedef struct abb_iter {
+    pila_t *pila;
+} abb_iter_t;
+
+void apilar_izquierdos(pila_t *pila, nodo_t* inicio) {
+    nodo_t* actual = inicio;
+    while (actual) {
+        pila_apilar(pila, actual);
+        actual = actual->izq;
+    }
+}
+
+bool abb_iter_in_al_final(const abb_iter_t *iter) {
+    return pila_esta_vacia(iter->pila);
+}
+
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
+    abb_iter_t *iter = malloc(sizeof(abb_iter_t));
+    if (!iter) {
+        return NULL;
+    }
+
+    pila_t *pila = pila_crear();
+    if (!pila) {
+        return NULL;
+    }
+
+    iter->pila = pila;
+    apilar_izquierdos(iter->pila, arbol->raiz);
+    return iter;
+}
+
+bool abb_iter_in_avanzar(abb_iter_t *iter) {
+    if (abb_iter_in_al_final(iter)) {
+        return false;
+    }
+    nodo_t *actual = pila_desapilar(iter->pila);
+    apilar_izquierdos(iter->pila, actual->der);
+    return true;
+}
+
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter) {
+    if (abb_iter_in_al_final(iter)) {
+        return NULL;
+    }
+    nodo_t *actual = pila_ver_tope(iter->pila);
+    return actual->clave;
+}
+
+void abb_iter_in_destruir(abb_iter_t *iter) {
+    pila_destruir(iter->pila);
+    free(iter);
+}
+// ----------- END ITERADOR -----------
