@@ -55,28 +55,26 @@ abb_t *abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato) {
     return abb;
 }
 
-bool abb_insertar_nodo(abb_t *abb, nodo_t *actual, nodo_t *nodo) {
+bool abb_insertar_nodo(abb_t *abb, nodo_t *actual, nodo_t *nuevo_nodo) {
     //TODO preguntar si compara como strcmp
-    int comparacion = abb->comparar_clave(actual->clave, nodo->clave);
+    int comparacion = abb->comparar_clave(actual->clave, nuevo_nodo->clave);
     if (comparacion == 0) {
         abb->destruir_dato(actual->valor);
-        nodo_clave_destruir(actual->clave);
-        actual->valor = nodo->valor;
-        actual->clave = nodo->clave;
-        free(nodo);
+        actual->valor = nuevo_nodo->valor;
+        free(nuevo_nodo);
     } else if (comparacion < 0) {
         //La clave actual es mas chica, me voy a la derecha
         if (actual->der) {
-            abb_insertar_nodo(abb, actual->der, nodo);
+            abb_insertar_nodo(abb, actual->der, nuevo_nodo);
         } else {
-            actual->der = nodo;
+            actual->der = nuevo_nodo;
         }
     } else {
         //La clave actual es mas grande, me voy a la izq
         if (actual->izq) {
-            abb_insertar_nodo(abb, actual->izq, nodo);
+            abb_insertar_nodo(abb, actual->izq, nuevo_nodo);
         } else {
-            actual->izq = nodo;
+            actual->izq = nuevo_nodo;
         }
     }
     return true;
@@ -95,11 +93,11 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato) {
     return abb_insertar_nodo(arbol, arbol->raiz, nodo);
 }
 
-void *abb_obtener_nodo(const abb_t *abb, nodo_t *nodo, const char *clave) {
-    int comparacion = abb->comparar_clave(nodo->clave, clave);
+nodo_t *abb_obtener_nodo(const abb_t *abb, nodo_t *nodo, const char *clave) {
     if (!nodo) {
         return NULL;
     }
+    int comparacion = abb->comparar_clave(nodo->clave, clave);
 
     if (comparacion == 0) {
         return nodo;
