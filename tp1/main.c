@@ -8,5 +8,5 @@ int main(int argc, char const *argv[])
 		return 1;
 	}
 
-	return run(argv[1]);
+	return start_wachencoin(argv[1]);
 }
