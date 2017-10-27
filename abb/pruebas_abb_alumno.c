@@ -1,10 +1,9 @@
 #include "abb.h"
-#include "../testing.c"
+#include "testing.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 static void prueba_crear_abb_vacio()
 {
@@ -285,10 +284,10 @@ static void prueba_abb_volumen(size_t largo, bool debug)
 
 }
 
-static ssize_t buscar(const char* clave, char* claves[], size_t largo)
+static int buscar(const char* clave, char* claves[], size_t largo)
 {
     for (size_t i = 0; i < largo; i++) {
-        if (strcmp(clave, claves[i]) == 0) return (ssize_t) i;
+        if (strcmp(clave, claves[i]) == 0) return (int)i;
     }
     return -1;
 }
@@ -308,7 +307,7 @@ static void prueba_abb_iterar()
     // Prueba de iteración sobre las claves almacenadas.
     abb_iter_t* iter = abb_iter_in_crear(abb);
     const char *clave;
-    ssize_t indice;
+    int indice;
 
     print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
 
@@ -414,7 +413,7 @@ static void prueba_abb_iterar_volumen(size_t largo)
  * *****************************************************************/
 
 
-void pruebas_abb_alumnos()
+void pruebas_abb_alumno()
 {
     /* Ejecuta todas las pruebas unitarias. */
     prueba_crear_abb_vacio();
