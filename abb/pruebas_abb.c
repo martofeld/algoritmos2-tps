@@ -32,6 +32,35 @@ static void prueba_iterar_abb_vacio()
     abb_destruir(abb);
 }
 
+bool sumar(const char* clave, int* valor, int* extra){
+    *extra+=*valor;
+    return true;
+}
+
+bool visitar(const char* clave, void* valor, void* extra){
+    return sumar(clave, valor, extra);
+}
+
+static void prueba_iterador_interno() {
+    abb_t* abb = abb_crear(strcmp, NULL);
+
+    int arr[] = {1,2,3,4};
+    char *clave1 = "perro";
+    char *clave2 = "gato";
+    char *clave3 = "vaca";
+    char *clave4 = "loro";
+    int extra = 0;
+
+    abb_guardar(abb, clave1, arr);
+    abb_guardar(abb, clave2, arr + 1);
+    abb_guardar(abb, clave3, arr + 2);
+    abb_guardar(abb, clave4, arr + 3);
+
+    abb_in_order(abb, visitar, &extra);
+    print_test("Se sumaron todos los elemetos", extra == 10);
+    abb_destruir(abb);
+}
+
 static void prueba_abb_insertar()
 {
     abb_t* abb = abb_crear(strcmp, NULL);
@@ -390,6 +419,7 @@ void pruebas_abb_catedra()
     /* Ejecuta todas las pruebas unitarias. */
     prueba_crear_abb_vacio();
     prueba_iterar_abb_vacio();
+    prueba_iterador_interno();
     prueba_abb_insertar();
     prueba_abb_reemplazar();
     prueba_abb_reemplazar_con_destruir();

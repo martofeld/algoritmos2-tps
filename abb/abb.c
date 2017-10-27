@@ -235,11 +235,7 @@ void abb_destruir(abb_t *arbol) {
     free(arbol);
 }
 
-// ----------- ITERADOR -----------
-struct abb_iter {
-    pila_t *pila;
-};
-
+// ----------- ITERADOR INTERNO -----------
 void apilar_izquierdos(pila_t *pila, nodo_t *inicio) {
     nodo_t *actual = inicio;
     while (actual) {
@@ -247,6 +243,28 @@ void apilar_izquierdos(pila_t *pila, nodo_t *inicio) {
         actual = actual->izq;
     }
 }
+
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra) {
+    pila_t* pila = pila_crear();
+    if (!pila) {
+        return;
+    }
+
+    apilar_izquierdos(pila, arbol->raiz);
+    while(!pila_esta_vacia(pila)){
+        nodo_t* actual = pila_desapilar(pila);
+        apilar_izquierdos(pila, actual->der);
+        if (!visitar(actual->clave, actual->valor, extra)) {
+            return;
+        }
+    }
+}
+// ----------- END ITERADOR INTERNO -----------
+
+// ----------- ITERADOR -----------
+struct abb_iter {
+    pila_t *pila;
+};
 
 bool abb_iter_in_al_final(const abb_iter_t *iter) {
     return pila_esta_vacia(iter->pila);
