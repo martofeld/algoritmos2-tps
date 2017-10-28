@@ -168,10 +168,7 @@ void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
         if (actual->izq && actual->der) {
             // Caso tiene dos hijos
             nodo_t *sucesor = abb_nodo_sucesor(actual);
-            if (padre)
-                xborrar(abb, padre->der, padre, sucesor->clave);
-            else
-                xborrar(abb, abb->raiz->der, abb->raiz, sucesor->clave);
+            xborrar(abb, actual->der, actual, sucesor->clave);
             sucesor->der = actual->der;
             sucesor->izq = actual->izq;
             if(padre) {
