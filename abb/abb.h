@@ -24,6 +24,8 @@ size_t abb_cantidad(abb_t *arbol);
 
 void abb_destruir(abb_t *arbol);
 
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
+
 // --------- ITERADOR --------
 typedef struct abb_iter abb_iter_t;
 

@@ -1,10 +1,9 @@
 #include "abb.h"
-#include "../testing.c"
+#include "testing.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 static void prueba_crear_abb_vacio()
 {
@@ -29,6 +28,35 @@ static void prueba_iterar_abb_vacio()
     print_test("Prueba abb iter ver actual es NULL", !abb_iter_in_ver_actual(iter));
 
     abb_iter_in_destruir(iter);
+    abb_destruir(abb);
+}
+
+bool sumar(const char* clave, int* valor, int* extra){
+    *extra+=*valor;
+    return true;
+}
+
+bool visitar(const char* clave, void* valor, void* extra){
+    return sumar(clave, valor, extra);
+}
+
+static void prueba_iterador_interno() {
+    abb_t* abb = abb_crear(strcmp, NULL);
+
+    int arr[] = {1,2,3,4};
+    char *clave1 = "perro";
+    char *clave2 = "gato";
+    char *clave3 = "vaca";
+    char *clave4 = "loro";
+    int extra = 0;
+
+    abb_guardar(abb, clave1, arr);
+    abb_guardar(abb, clave2, arr + 1);
+    abb_guardar(abb, clave3, arr + 2);
+    abb_guardar(abb, clave4, arr + 3);
+
+    abb_in_order(abb, visitar, &extra);
+    print_test("Se sumaron todos los elemetos", extra == 10);
     abb_destruir(abb);
 }
 
@@ -256,10 +284,10 @@ static void prueba_abb_volumen(size_t largo, bool debug)
 
 }
 
-static ssize_t buscar(const char* clave, char* claves[], size_t largo)
+static int buscar(const char* clave, char* claves[], size_t largo)
 {
     for (size_t i = 0; i < largo; i++) {
-        if (strcmp(clave, claves[i]) == 0) return (ssize_t) i;
+        if (strcmp(clave, claves[i]) == 0) return (int)i;
     }
     return -1;
 }
@@ -279,7 +307,7 @@ static void prueba_abb_iterar()
     // Prueba de iteración sobre las claves almacenadas.
     abb_iter_t* iter = abb_iter_in_crear(abb);
     const char *clave;
-    ssize_t indice;
+    int indice;
 
     print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
 
@@ -385,28 +413,19 @@ static void prueba_abb_iterar_volumen(size_t largo)
  * *****************************************************************/
 
 
-void pruebas_abb_catedra()
+void pruebas_abb_alumno()
 {
     /* Ejecuta todas las pruebas unitarias. */
     prueba_crear_abb_vacio();
     prueba_iterar_abb_vacio();
+    prueba_iterador_interno();
     prueba_abb_insertar();
     prueba_abb_reemplazar();
     prueba_abb_reemplazar_con_destruir();
     prueba_abb_borrar();
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
-    //prueba_abb_volumen(5000, true);
+    prueba_abb_volumen(5000, true);
     prueba_abb_iterar();
     prueba_abb_iterar_volumen(5000);
-}
-
-int main()
-{
-    pruebas_abb_catedra();
-    return 0;
-}
-void pruebas_volumen_catedra(size_t largo)
-{
-    prueba_abb_volumen(largo, false);
 }
