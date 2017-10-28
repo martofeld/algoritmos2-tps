@@ -276,9 +276,10 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
         nodo_t* actual = pila_desapilar(pila);
         apilar_izquierdos(pila, actual->der);
         if (!visitar(actual->clave, actual->valor, extra)) {
-            return;
+            break;
         }
     }
+    pila_destruir(pila);
 }
 // ----------- END ITERADOR INTERNO -----------
 
