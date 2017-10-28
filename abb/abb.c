@@ -165,43 +165,59 @@ nodo_t* abb_nodo_sucesor(nodo_t* nodo){
 void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
     int comparacion = comparar_clave(abb, actual->clave, clave);
     if (comparacion == 0) {
-        if (actual->izq && actual->der && padre) {
+        if (actual->izq && actual->der) {
             // Caso tiene dos hijos
             nodo_t *sucesor = abb_nodo_sucesor(actual);
+            if (padre)
+                xborrar(abb, padre, padre->der, sucesor->clave);
+            else
+                xborrar(abb, abb->raiz, abb->raiz->der, sucesor->clave);
             sucesor->der = actual->der;
             sucesor->izq = actual->izq;
-            if(padre && actual == padre->der){
-                padre->der = sucesor;
+            if(padre) {
+                if (actual == padre->der) {
+                    padre->der = sucesor;
+                } else {
+                    padre->izq = sucesor;
+                }
             } else {
-                padre->izq = sucesor;
+                abb->raiz = sucesor;
             }
-        } else if (actual->izq && padre) {
+        } else if (actual->izq) {
             // Caso solo tengo el hijo izq
-            if(actual == padre->izq){
-                padre->izq = actual->izq;
+            if(padre) {
+                if (actual == padre->izq) {
+                    padre->izq = actual->izq;
+                } else {
+                    padre->der = actual->izq;
+                }
             } else {
-                padre->der = actual->izq;
+                abb->raiz = actual->izq;
             }
-        } else if (actual->der && padre) {
+        } else if (actual->der) {
             // Caso solo tengo el hijo der
-            if(actual == padre->izq)
-                padre->izq = actual->der;
-            else
-                padre->der = actual->der;
-        } else if(padre){
-            //Caso hoja
-            if (padre->der == actual) {
-                padre->der = NULL;
+            if(padre) {
+                if (actual == padre->izq)
+                    padre->izq = actual->der;
+                else
+                    padre->der = actual->der;
             } else {
-                padre->izq = NULL;
+                abb->raiz = actual->der;
             }
         } else {
-            abb->raiz = abb_nodo_sucesor(actual);
+            //Caso hoja
+            if (padre) {
+                if (padre->der == actual) {
+                    padre->der = NULL;
+                } else {
+                    padre->izq = NULL;
+                }
+            } else {
+                // Si soy una hoja y no tengo padre soy el ultimo nodo
+                abb->raiz = NULL;
+            }
         }
-        abb->cantidad--;
-        void* valor = actual->valor;
-        nodo_destruir(NULL, actual);
-        return valor;
+        return actual;
     } else if (comparacion < 0) {
         return xborrar(abb, actual->der, actual, clave);
     } else {
@@ -209,11 +225,16 @@ void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
     }
 }
 
+
 void *abb_borrar(abb_t *arbol, const char *clave) {
     if (!abb_pertenece(arbol, clave)) {
         return NULL;
     }
-    return xborrar(arbol, arbol->raiz, NULL, clave);
+    nodo_t* borrar = xborrar(arbol, arbol->raiz, NULL, clave);
+    void* valor = borrar->valor;
+    arbol->cantidad--;
+    nodo_destruir(NULL, borrar);
+    return valor;
 }
 
 size_t abb_cantidad(abb_t *arbol) {
