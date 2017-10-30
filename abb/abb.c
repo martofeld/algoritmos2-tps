@@ -48,7 +48,7 @@ struct abb {
     size_t cantidad;
 };
 
-int comparar_clave(const abb_t* abb, const char* clave_guardada, const char* clave_nueva){
+int comparar_clave(const abb_t *abb, const char *clave_guardada, const char *clave_nueva) {
     return abb->comparar_clave(clave_guardada, clave_nueva);
 }
 
@@ -68,12 +68,11 @@ bool abb_insertar_nodo(abb_t *abb, nodo_t *actual, nodo_t *nuevo_nodo) {
     //TODO preguntar si compara como strcmp
     int comparacion = comparar_clave(abb, actual->clave, nuevo_nodo->clave);
     if (comparacion == 0) {
-        if(abb->destruir_dato)
+        if (abb->destruir_dato)
             abb->destruir_dato(actual->valor);
         actual->valor = nuevo_nodo->valor;
         //Destruyo el nuevo nodo
-        nodo_clave_destruir(nuevo_nodo->clave);
-        free(nuevo_nodo);
+        nodo_destruir(NULL, nuevo_nodo);
     } else if (comparacion < 0) {
         //La clave actual es mas chica, me voy a la derecha
         if (actual->der) {
@@ -144,7 +143,7 @@ nodo_t *abb_nodo_minimo(nodo_t *nodo) {
     return act;
 }
 
-nodo_t* abb_nodo_maximo(nodo_t* nodo){
+nodo_t *abb_nodo_maximo(nodo_t *nodo) {
     nodo_t *act = nodo;
     while (act->der) {
         act = act->der;
@@ -152,11 +151,11 @@ nodo_t* abb_nodo_maximo(nodo_t* nodo){
     return act;
 }
 
-nodo_t* abb_nodo_sucesor(nodo_t* nodo){
-    if(nodo->der){
+nodo_t *abb_nodo_sucesor(nodo_t *nodo) {
+    if (nodo->der) {
         return abb_nodo_minimo(nodo->der);
     }
-    if(nodo->izq){
+    if (nodo->izq) {
         return abb_nodo_maximo(nodo->izq);
     }
     return NULL;
@@ -171,7 +170,7 @@ void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
             xborrar(abb, actual->der, actual, sucesor->clave);
             sucesor->der = actual->der;
             sucesor->izq = actual->izq;
-            if(padre) {
+            if (padre) {
                 if (actual == padre->der) {
                     padre->der = sucesor;
                 } else {
@@ -182,7 +181,7 @@ void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
             }
         } else if (actual->izq) {
             // Caso solo tengo el hijo izq
-            if(padre) {
+            if (padre) {
                 if (actual == padre->izq) {
                     padre->izq = actual->izq;
                 } else {
@@ -193,7 +192,7 @@ void *xborrar(abb_t *abb, nodo_t *actual, nodo_t *padre, const char *clave) {
             }
         } else if (actual->der) {
             // Caso solo tengo el hijo der
-            if(padre) {
+            if (padre) {
                 if (actual == padre->izq)
                     padre->izq = actual->der;
                 else
@@ -227,8 +226,8 @@ void *abb_borrar(abb_t *arbol, const char *clave) {
     if (!abb_pertenece(arbol, clave)) {
         return NULL;
     }
-    nodo_t* borrar = xborrar(arbol, arbol->raiz, NULL, clave);
-    void* valor = borrar->valor;
+    nodo_t *borrar = xborrar(arbol, arbol->raiz, NULL, clave);
+    void *valor = borrar->valor;
     arbol->cantidad--;
     nodo_destruir(NULL, borrar);
     return valor;
@@ -263,14 +262,14 @@ void apilar_izquierdos(pila_t *pila, nodo_t *inicio) {
 }
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra) {
-    pila_t* pila = pila_crear();
+    pila_t *pila = pila_crear();
     if (!pila) {
         return;
     }
 
     apilar_izquierdos(pila, arbol->raiz);
-    while(!pila_esta_vacia(pila)){
-        nodo_t* actual = pila_desapilar(pila);
+    while (!pila_esta_vacia(pila)) {
+        nodo_t *actual = pila_desapilar(pila);
         apilar_izquierdos(pila, actual->der);
         if (!visitar(actual->clave, actual->valor, extra)) {
             break;
