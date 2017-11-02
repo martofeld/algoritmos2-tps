@@ -1,9 +1,8 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
 #ifndef HEAP_H
 #define HEAP_H
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
-
 
 struct heap;
 typedef struct heap heap_t;
