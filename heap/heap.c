@@ -71,7 +71,7 @@ void downheap(heap_t *heap, size_t posicion, size_t largo) {
 // ------------ END UTILS ---------
 
 heap_t *_crear_heap(cmp_func_t cmp) {
-    heap_t *heap = malloc(sizeof(heap));
+    heap_t *heap = malloc(sizeof(heap_t));
     if (!heap) {
         return NULL;
     }
