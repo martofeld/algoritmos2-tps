@@ -158,6 +158,9 @@ bool heap_encolar(heap_t *heap, void *elem) {
 }
 
 void *heap_ver_max(const heap_t *heap) {
+    if(heap_esta_vacio(heap)){
+        return NULL;
+    }
     return heap->arreglo[0];
 }
 
