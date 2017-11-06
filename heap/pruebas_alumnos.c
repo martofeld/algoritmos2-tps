@@ -125,14 +125,13 @@ void pruebas_heapsort() {
 void pruebas_destruyendo(){
     size_t largo = 10;
     heap_t* heap = heap_crear(comparar_void);
-    int** array = malloc(sizeof(int*) * largo);
     for (int i = 0; i < largo; i++) {
-        array[i] = malloc(sizeof(int));
-        heap_encolar(heap, &array[i]);
+        int* puntero = malloc(sizeof(int));
+        *puntero = i;
+        heap_encolar(heap, puntero);
     }
     print_test("El heap tiene 10 elementos", heap_cantidad(heap) == 10);
     heap_destruir(heap, free);
-    free(array);
 }
 
 void pruebas_heap_alumno() {
