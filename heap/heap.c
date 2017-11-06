@@ -111,7 +111,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
     heap_t *heap = _crear_heap(cmp, n, n);
     if (!heap) return NULL;
     void** arreglo_copia = malloc(sizeof(void*) * n);
-    memcpy(arreglo_copia, arreglo, n);
+    memcpy(arreglo_copia, arreglo, sizeof(void*) * n);
     heapify(arreglo_copia, cmp, n);
     heap->arreglo = arreglo_copia;
     return heap;
