@@ -1,5 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <stdbool.h>
 #ifndef HEAP_H
 #define HEAP_H

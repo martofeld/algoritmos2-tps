@@ -1,4 +1,5 @@
 #include "heap.h"
+#include <stdlib.h>
 
 #define LARGO_INICIAL 15
 #define REDIMENSION 2
