@@ -125,7 +125,7 @@ void pruebas_heapsort() {
 void pruebas_destruyendo(){
     int largo = 10;
     heap_t* heap = heap_crear(comparar_void);
-    char** array = malloc(sizeof(int*) * largo);
+    int** array = malloc(sizeof(int*) * largo);
     for (int i = 0; i < largo; i++) {
         array[i] = malloc(sizeof(int));
         heap_encolar(heap, &array[i]);
