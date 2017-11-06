@@ -130,7 +130,7 @@ void pruebas_destruyendo(){
         array[i] = malloc(sizeof(int));
         heap_encolar(heap, &array[i]);
     }
-
+    print_test("El heap tiene 10 elementos", heap_cantidad(heap) == 10);
     heap_destruir(heap, free);
     free(array);
 }

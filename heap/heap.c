@@ -1,5 +1,6 @@
 #include "heap.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define LARGO_INICIAL 15
 #define REDIMENSION 2
@@ -109,8 +110,10 @@ void heapify(void *arreglo[], cmp_func_t cmp, size_t n) {
 heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
     heap_t *heap = _crear_heap(cmp, n, n);
     if (!heap) return NULL;
-    heapify(arreglo, cmp, n);
-    heap->arreglo = arreglo;
+    void** arreglo_copia = malloc(sizeof(void*) * n);
+    memcpy(arreglo_copia, arreglo, n);
+    heapify(arreglo_copia, cmp, n);
+    heap->arreglo = arreglo_copia;
     return heap;
 }
 
@@ -168,6 +171,9 @@ void *heap_ver_max(const heap_t *heap) {
 void *heap_desencolar(heap_t *heap) {
     if (heap_esta_vacio(heap)) {
         return NULL;
+    }
+    if(heap->cantidad / 4 == heap->largo){
+        redimensionar(heap, heap->largo / REDIMENSION);
     }
     void *desencolado = heap->arreglo[0];
     heap->cantidad--;
