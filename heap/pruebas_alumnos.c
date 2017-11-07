@@ -21,12 +21,12 @@ static void shuffle(int **claves, size_t largo) {
 
     // Mezclamos el array: algoritmo de Fisher–Yates
     for (int i = (int) (largo / 2 - 1); i >= 0; i--) {
-        unsigned int j = rand() % (i + 1);
+        size_t j = (size_t) rand() % (i + 1);
         swap((void **) claves, i, j);
     }
 }
 
-int comparar_ints(int *a, int *b) {
+int comparar_ints(const int *a, const int *b) {
     if (*a == *b) {
         return 0;
     }
@@ -119,7 +119,6 @@ void pruebas_volumen_heap(void) {
     OK = true;
     for (int i = 0; i < VOLUMEN; i++) {
         OK &= heap_desencolar(heap) == arreglo[i];
-        free(arreglo[i]);
         free(arreglo_desordenado[i]);
     }
 
@@ -133,7 +132,6 @@ void pruebas_volumen_heap(void) {
 }
 
 void pruebas_heapsort_menor_a_mayor() {
-    heap_t *heap = heap_crear(comparar_void);
     int **arreglo = malloc(sizeof(int *) * VOLUMEN);
 
     for (int i = 0; i < VOLUMEN; i++) {
@@ -144,18 +142,12 @@ void pruebas_heapsort_menor_a_mayor() {
     int **arreglo_desordenado = malloc(sizeof(int *) * VOLUMEN);
     memcpy(arreglo_desordenado, arreglo, sizeof(int *) * VOLUMEN);
     shuffle(arreglo_desordenado, VOLUMEN);
-    bool OK = true;
-    for (int i = 0; i < VOLUMEN; i++) {
-        OK &= heap_encolar(heap, &arreglo[i]);
-    }
-
-    print_test("Se apilaron todos los elementos", OK);
 
     heap_sort((void **) arreglo_desordenado, VOLUMEN, comparar_void);
+    bool OK = true;
     for (int i = 0; i < VOLUMEN; i++) {
         OK &= arreglo_desordenado[i] == arreglo[i];
         free(arreglo_desordenado[i]);
-        free(arreglo[i]);
     }
     print_test("El arreglo esta ordenado", OK);
     free(arreglo_desordenado);
@@ -167,7 +159,6 @@ int comparar_void2(const void *a, const void *b) {
 }
 
 void pruebas_heapsort_mayor_a_menor() {
-    heap_t *heap = heap_crear(comparar_void2);
     int **arreglo = malloc(sizeof(int *) * VOLUMEN);
 
     for (int i = VOLUMEN - 1; i >= 0; i--) {
@@ -178,18 +169,12 @@ void pruebas_heapsort_mayor_a_menor() {
     int **arreglo_desordenado = malloc(sizeof(int *) * VOLUMEN);
     memcpy(arreglo_desordenado, arreglo, sizeof(int *) * VOLUMEN);
     shuffle(arreglo_desordenado, VOLUMEN);
-    bool OK = true;
-    for (int i = 0; i < VOLUMEN; i++) {
-        OK &= heap_encolar(heap, &arreglo[i]);
-    }
-
-    print_test("Se apilaron todos los elementos", OK);
 
     heap_sort((void **) arreglo_desordenado, VOLUMEN, comparar_void);
+    bool OK = true;
     for (int i = 0; i < VOLUMEN; i++) {
         OK &= arreglo_desordenado[i] == arreglo[i];
         free(arreglo_desordenado[i]);
-        free(arreglo[i]);
     }
     print_test("El arreglo esta ordenado", OK);
     free(arreglo_desordenado);
