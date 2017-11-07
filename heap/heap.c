@@ -31,16 +31,16 @@ void swap(void **x, void **y) {
     *y = aux;
 }
 
-// Si devuelve -1 el primero es mayor
+// Si devuelve -1 el primero es menor
 // Si devuelve 0 son iguales
-// Si devuelve 1 el segundo es mayor
+// Si devuelve 1 el primer es mayor
 int comparar(cmp_func_t cmp, void *valor1, void *valor2) {
     return cmp(valor1, valor2);
 }
 
 void upheap(void *arreglo[], cmp_func_t cmp, size_t posicion) {
     size_t padre = buscar_padre(posicion);
-    if (posicion == 0 || comparar(cmp, arreglo[padre], arreglo[posicion]) <= 0) {
+    if (posicion == 0 || comparar(cmp, arreglo[padre], arreglo[posicion]) >= 0) {
         return;
     }
     swap(&arreglo[posicion], &arreglo[padre]);
@@ -54,17 +54,17 @@ void downheap(void *arreglo[], cmp_func_t cmp, size_t posicion, size_t largo) {
         return;
     }
     size_t hijo_der = hijo_derecho(posicion);
-    if (comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) < 0 &&
+    if (comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) >= 0 &&
         (hijo_der >= largo ||
-         comparar(cmp, arreglo[posicion], arreglo[hijo_der]) < 0)) {
+         comparar(cmp, arreglo[posicion], arreglo[hijo_der]) >= 0)) {
         // El padre es mas grande que los dos hijos, todo cool
         return;
     }
     // Uno de los dos tiene que ser mas chico
-    size_t pos_mayor; // Asumo que es el izq
-    bool izq_mayor = comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) > 0;
-    bool der_mayor = hijo_der < largo && comparar(cmp, arreglo[posicion], arreglo[hijo_der]) > 0;
-    bool izq_mayor_hijos = hijo_der >= largo || comparar(cmp, arreglo[hijo_izq], arreglo[hijo_der]) < 0;
+    size_t pos_mayor;
+    bool izq_mayor = comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) < 0;
+    bool der_mayor = hijo_der < largo && comparar(cmp, arreglo[posicion], arreglo[hijo_der]) < 0;
+    bool izq_mayor_hijos = hijo_der >= largo || comparar(cmp, arreglo[hijo_izq], arreglo[hijo_der]) > 0;
     if (izq_mayor && der_mayor) {
         pos_mayor = izq_mayor_hijos ? hijo_izq : hijo_der;
     } else {
@@ -111,6 +111,10 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
     heap_t *heap = _crear_heap(cmp, n, n);
     if (!heap) return NULL;
     void** arreglo_copia = malloc(sizeof(void*) * n);
+    if (!arreglo_copia){
+        free(heap);
+        return NULL;
+    }
     memcpy(arreglo_copia, arreglo, sizeof(void*) * n);
     heapify(arreglo_copia, cmp, n);
     heap->arreglo = arreglo_copia;
@@ -185,10 +189,10 @@ void *heap_desencolar(heap_t *heap) {
 
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp) {
     heapify(elementos, cmp, cant);
-    size_t k = cant - 1;
-    while (k > 0) {
-        swap(&elementos[0], &elementos[k]);
+    size_t k = cant;
+    do {
+        swap(&elementos[0], &elementos[k - 1]);
         k--;
         downheap(elementos, cmp, 0, k);
-    }
+    } while (k > 0);
 }

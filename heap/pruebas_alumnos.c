@@ -3,19 +3,37 @@
 //
 
 #include <stdlib.h>
+#include <time.h>
+#include <string.h>
 #include "testing.h"
 #include "heap.h"
 
-#define VOLUMEN 500
+#define VOLUMEN 1000
+
+static void swap(void *array[], size_t p1, size_t p2) {
+    void *temp = array[p1];
+    array[p1] = array[p2];
+    array[p2] = temp;
+}
+
+static void shuffle(int **claves, size_t largo) {
+    srand((unsigned int) time(NULL));
+
+    // Mezclamos el array: algoritmo de Fisher–Yates
+    for (int i = (int) (largo / 2 - 1); i >= 0; i--) {
+        unsigned int j = rand() % (i + 1);
+        swap((void **) claves, i, j);
+    }
+}
 
 int comparar_ints(int *a, int *b) {
     if (*a == *b) {
         return 0;
     }
     if (*a < *b) {
-        return 1;
+        return -1;
     }
-    return -1;
+    return 1;
 }
 
 int comparar_void(const void *a, const void *b) {
@@ -73,60 +91,116 @@ void pruebas_heapify() {
         ok &= heap_desencolar(heap) == &array[ordered_indexes[i]];
     }
     print_test("Desencolo en orden de mayor a menor", ok);
+    heap_destruir(heap, NULL);
 }
 
 void pruebas_volumen_heap(void) {
     heap_t *heap = heap_crear(comparar_void);
-    int arreglo[VOLUMEN];
+    int **arreglo = malloc(sizeof(int *) * VOLUMEN);
     bool OK = true;
 
-//Aumentamos en cantidad el volumen de la heap
     for (int i = 0; i < VOLUMEN; i++) {
-        arreglo[i] = i;
+        int *puntero = malloc(sizeof(int *));
+        *puntero = i;
+        arreglo[i] = puntero;
+    }
+    int **arreglo_desordenado = malloc(sizeof(int *) * VOLUMEN);
+    memcpy(arreglo_desordenado, arreglo, sizeof(int *) * VOLUMEN);
+    shuffle(arreglo_desordenado, VOLUMEN);
+    for (int i = 0; i < VOLUMEN; i++) {
         OK &= heap_encolar(heap, &arreglo[i]);
     }
 
-    print_test("Hace crecer el heap", OK);
+    print_test("Se apilaron todos los elementos", OK);
 
     print_test("El heap no esta vacio", !heap_esta_vacio(heap));
     print_test("El largo del heap es 500", heap_cantidad(heap) == VOLUMEN);
 
-//Vaciamos la heap
-
+    OK = true;
     for (int i = 0; i < VOLUMEN; i++) {
-        heap_desencolar(heap);
+        OK &= heap_desencolar(heap) == arreglo[i];
+        free(arreglo[i]);
+        free(arreglo_desordenado[i]);
     }
 
     print_test("El heap esta vacio", heap_esta_vacio(heap));
 
-//La heap vaciada se comporta como recien creada
-
     print_test("Largo del heap es 0", !heap_cantidad(heap));
     heap_destruir(heap, NULL);
     print_test("El heap fue destruido", true);
+    free(arreglo);
+    free(arreglo_desordenado);
 }
 
-void pruebas_heapsort() {
-    int array[] = {9, 3, 4, 6, 1, 2, 5, 7, 8};
-    int array_o[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int largo = sizeof(array) / sizeof(int);
-    void *array_aux[largo];
-    for (int j = 0; j < largo; j++) {
-        array_aux[j] = &array[j];
+void pruebas_heapsort_menor_a_mayor() {
+    heap_t *heap = heap_crear(comparar_void);
+    int **arreglo = malloc(sizeof(int *) * VOLUMEN);
+
+    for (int i = 0; i < VOLUMEN; i++) {
+        int *puntero = malloc(sizeof(int *));
+        *puntero = i;
+        arreglo[i] = puntero;
     }
-    bool ok = true;
-    heap_sort(array_aux, 9, comparar_void);
-    for (int i = 0; i < 9; i++) {
-        ok &= *(int *) array_aux[i] == array_o[i];
+    int **arreglo_desordenado = malloc(sizeof(int *) * VOLUMEN);
+    memcpy(arreglo_desordenado, arreglo, sizeof(int *) * VOLUMEN);
+    shuffle(arreglo_desordenado, VOLUMEN);
+    bool OK = true;
+    for (int i = 0; i < VOLUMEN; i++) {
+        OK &= heap_encolar(heap, &arreglo[i]);
     }
-    print_test("El arreglo esta ordenado", ok);
+
+    print_test("Se apilaron todos los elementos", OK);
+
+    heap_sort((void **) arreglo_desordenado, VOLUMEN, comparar_void);
+    for (int i = 0; i < VOLUMEN; i++) {
+        OK &= arreglo_desordenado[i] == arreglo[i];
+        free(arreglo_desordenado[i]);
+        free(arreglo[i]);
+    }
+    print_test("El arreglo esta ordenado", OK);
+    free(arreglo_desordenado);
+    free(arreglo);
 }
 
-void pruebas_destruyendo(){
+int comparar_void2(const void *a, const void *b) {
+    return comparar_ints((int *) a, (int *) b) * -1;
+}
+
+void pruebas_heapsort_mayor_a_menor() {
+    heap_t *heap = heap_crear(comparar_void2);
+    int **arreglo = malloc(sizeof(int *) * VOLUMEN);
+
+    for (int i = VOLUMEN - 1; i >= 0; i--) {
+        int *puntero = malloc(sizeof(int *));
+        *puntero = i;
+        arreglo[i] = puntero;
+    }
+    int **arreglo_desordenado = malloc(sizeof(int *) * VOLUMEN);
+    memcpy(arreglo_desordenado, arreglo, sizeof(int *) * VOLUMEN);
+    shuffle(arreglo_desordenado, VOLUMEN);
+    bool OK = true;
+    for (int i = 0; i < VOLUMEN; i++) {
+        OK &= heap_encolar(heap, &arreglo[i]);
+    }
+
+    print_test("Se apilaron todos los elementos", OK);
+
+    heap_sort((void **) arreglo_desordenado, VOLUMEN, comparar_void);
+    for (int i = 0; i < VOLUMEN; i++) {
+        OK &= arreglo_desordenado[i] == arreglo[i];
+        free(arreglo_desordenado[i]);
+        free(arreglo[i]);
+    }
+    print_test("El arreglo esta ordenado", OK);
+    free(arreglo_desordenado);
+    free(arreglo);
+}
+
+void pruebas_destruyendo() {
     size_t largo = 10;
-    heap_t* heap = heap_crear(comparar_void);
+    heap_t *heap = heap_crear(comparar_void);
     for (int i = 0; i < largo; i++) {
-        int* puntero = malloc(sizeof(int));
+        int *puntero = malloc(sizeof(int));
         *puntero = i;
         heap_encolar(heap, puntero);
     }
@@ -139,11 +213,7 @@ void pruebas_heap_alumno() {
     pruebas_desencolar();
     pruebas_volumen_heap();
     pruebas_heapify();
-    pruebas_heapsort();
+    pruebas_heapsort_menor_a_mayor();
+    pruebas_heapsort_mayor_a_menor();
     pruebas_destruyendo();
-}
-
-int main() {
-    pruebas_heap_alumno();
-    return 0;
 }
