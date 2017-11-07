@@ -16,3 +16,9 @@ add_executable(lista ${SOURCE_FILES} ${COMMONS})
 
 set(SOURCE_FILES hash/hash.c hash/pruebas_catedra.c)
 add_executable(hash ${SOURCE_FILES} ${COMMONS})
+
+set(SOURCE_FILES tp1/payment.c tp1/user.c tp1/strutil.c tp1/tp1.c tp1/main.c tp1/tdas/pila.c tp1/tdas/cola.c)
+add_executable(tp1 ${SOURCE_FILES} ${COMMONS})
+
+set(SOURCE_FILES tp2/tp2.c tp2/main.c)
+add_executable(tp2 ${SOURCE_FILES} ${COMMONS})
