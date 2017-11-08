@@ -3,19 +3,22 @@
 #include "stdio.h"
 #include "strcopy.h"
 
-// strtok?
-char** split(const char* str, char sep){
-    int length = 0, count = 0;
+int countSeparators(const char* str, char sep){
+    int count = 0;
     int currentStringPosition = 0;
-    //Mientras haya cadena sigo
     while(str[currentStringPosition]) {
-        if (str[currentStringPosition] == sep) count++; //Cuento la cantidad de espacios de array que voy a necesitar
-        length++; // Cuento la cantidad de caracteres
-   		currentStringPosition++;
+        if (str[currentStringPosition] == sep) count++;
+        currentStringPosition++;
     }
-    currentStringPosition = 0;
+    return count;
+}
+
+char** split(const char* str, char sep){
+    int count = countSeparators(str, sep);
 
     char **array = (char **)malloc(sizeof(char *) * (count + 2));
+
+    int currentStringPosition = 0;
     int currentArrayPosition = 0;
     for(int i = 0; i < (count + 1); i++) {
         int j = 0;
@@ -34,20 +37,13 @@ char** split(const char* str, char sep){
 
 char* strcopy(const char* src){
     char* dest = malloc(sizeof(char) * (strlen(src) + 1));
-    int i = 0;
-    while(src[i]){
-        dest[i] = src[i];
-        i++;
-    }
-    dest[i] = '\0';
+    strcpy(dest, src);
     return dest;
 }
 
 void free_strv(char *strv[]){
-	int i = 0;
-	while(strv[i]){
-		free(strv[i]);
-		i++;
-	}
+    for (int i = 0; strv[i]; i++) {
+        free(strv[i]);
+    }
 	free(strv);
 }
