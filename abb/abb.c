@@ -25,6 +25,10 @@ nodo_t *nodo_crear(const char *clave, void *valor) {
         return NULL;
     }
     char *clave_aux = malloc(sizeof(char) * (strlen(clave) + 1));
+    if (!clave_aux){
+        free(nodo);
+        return NULL;
+    }
     strcpy(clave_aux, clave);
     nodo->clave = clave_aux;
     nodo->valor = valor;
@@ -115,19 +119,20 @@ nodo_t *abb_obtener_nodo(const abb_t *abb, nodo_t *nodo, const char *clave) {
 
     if (comparacion == 0) {
         return nodo;
-    } else if (comparacion < 0) {
-        return abb_obtener_nodo(abb, nodo->der, clave);
-    } else {
-        return abb_obtener_nodo(abb, nodo->izq, clave);
     }
+    if (comparacion < 0) {
+        return abb_obtener_nodo(abb, nodo->der, clave);
+    }
+    return abb_obtener_nodo(abb, nodo->izq, clave);
+    
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave) {
     nodo_t *nodo = abb_obtener_nodo(arbol, arbol->raiz, clave);
-    if (nodo) {
-        return nodo->valor;
+    if (!nodo) {
+        return NULL;
     }
-    return NULL;
+    return nodo->valor;
 }
 
 bool abb_pertenece(const abb_t *arbol, const char *clave) {
