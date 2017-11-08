@@ -5,6 +5,14 @@
 #define LARGO_INICIAL 15
 #define REDIMENSION 2
 
+#define PADRE(hijo) (((hijo) - 1) / 2)
+#define HIJO_IZQ(padre) (((padre) * 2) + 1)
+#define HIJO_DER(padre) (((padre) * 2) + 2)
+// Si devuelve -1 el primero es menor
+// Si devuelve 0 son iguales
+// Si devuelve 1 el primer es mayor
+#define COMPARAR(cmp, padre, hijo) ((cmp)((padre), (hijo)))
+
 struct heap {
     cmp_func_t cmp;
     void **arreglo;
@@ -13,66 +21,58 @@ struct heap {
 };
 
 // ----------- UTILS ----------
-size_t hijo_izquierdo(size_t padre) {
-    return (padre * 2) + 1;
-}
-
-size_t hijo_derecho(size_t padre) {
-    return (padre * 2) + 2;
-}
-
-size_t buscar_padre(size_t hijo) {
-    return (hijo - 1) / 2;
-}
-
 void swap(void **x, void **y) {
     void *aux = *x;
     *x = *y;
     *y = aux;
 }
 
-// Si devuelve -1 el primero es menor
-// Si devuelve 0 son iguales
-// Si devuelve 1 el primer es mayor
-int comparar(cmp_func_t cmp, void *valor1, void *valor2) {
-    return cmp(valor1, valor2);
-}
-
 void upheap(void *arreglo[], cmp_func_t cmp, size_t posicion) {
-    size_t padre = buscar_padre(posicion);
-    if (posicion == 0 || comparar(cmp, arreglo[padre], arreglo[posicion]) >= 0) {
+    size_t padre = PADRE(posicion);
+    if (posicion == 0 || COMPARAR(cmp, arreglo[padre], arreglo[posicion]) >= 0) {
         return;
     }
     swap(&arreglo[posicion], &arreglo[padre]);
     upheap(arreglo, cmp, padre);
 }
 
-void downheap(void *arreglo[], cmp_func_t cmp, size_t posicion, size_t largo) {
-    size_t hijo_izq = hijo_izquierdo(posicion);
-    if (hijo_izq >= largo) {
-        //soy una hoja
-        return;
-    }
-    size_t hijo_der = hijo_derecho(posicion);
-    if (comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) >= 0 &&
-        (hijo_der >= largo ||
-         comparar(cmp, arreglo[posicion], arreglo[hijo_der]) >= 0)) {
-        // El padre es mas grande que los dos hijos, todo cool
-        return;
-    }
-    // Uno de los dos tiene que ser mas chico
+size_t obtener_hijo_mayor(void* arreglo[], cmp_func_t cmp, size_t padre, size_t largo){
+    size_t hijo_izq = HIJO_IZQ(padre);
+    size_t hijo_der = HIJO_DER(padre);
     size_t pos_mayor;
-    bool izq_mayor = comparar(cmp, arreglo[posicion], arreglo[hijo_izq]) < 0;
-    bool der_mayor = hijo_der < largo && comparar(cmp, arreglo[posicion], arreglo[hijo_der]) < 0;
-    bool izq_mayor_hijos = hijo_der >= largo || comparar(cmp, arreglo[hijo_izq], arreglo[hijo_der]) > 0;
+    bool izq_mayor = COMPARAR(cmp, arreglo[padre], arreglo[hijo_izq]) < 0;
+    bool der_mayor = hijo_der < largo && COMPARAR(cmp, arreglo[padre], arreglo[hijo_der]) < 0;
     if (izq_mayor && der_mayor) {
+        bool izq_mayor_hijos = hijo_der >= largo || COMPARAR(cmp, arreglo[hijo_izq], arreglo[hijo_der]) > 0;
         pos_mayor = izq_mayor_hijos ? hijo_izq : hijo_der;
     } else {
         pos_mayor = izq_mayor ? hijo_izq : hijo_der;
     }
-    swap(&arreglo[posicion], &arreglo[pos_mayor]);
+    return pos_mayor;
+}
 
-    downheap(arreglo, cmp, pos_mayor, largo);
+bool es_mayor_a_ambos_hijos(void* arreglo[], cmp_func_t cmp, size_t padre, size_t largo){
+    size_t hijo_izq = HIJO_IZQ(padre);
+    size_t hijo_der = HIJO_DER(padre);
+    return COMPARAR(cmp, arreglo[padre], arreglo[hijo_izq]) >= 0 && // Es mas grande al izq
+    (hijo_der >= largo || COMPARAR(cmp, arreglo[padre], arreglo[hijo_der]) >= 0); // Existe el derecho y es mas chico
+}
+
+void downheap(void *arreglo[], cmp_func_t cmp, size_t posicion, size_t largo) {
+    if (HIJO_IZQ(posicion) >= largo) {
+        //soy una hoja
+        return;
+    }
+    if (es_mayor_a_ambos_hijos(arreglo, cmp, posicion, largo)) {
+        // El padre es mas grande que los dos hijos, todo cool
+        return;
+    }
+    // Uno de los dos tiene que ser mas chico
+
+    size_t hijo_mayor = obtener_hijo_mayor(arreglo, cmp, posicion, largo);
+    swap(&arreglo[posicion], &arreglo[hijo_mayor]);
+
+    downheap(arreglo, cmp, hijo_mayor, largo);
 }
 // ------------ END UTILS ---------
 
@@ -100,7 +100,7 @@ heap_t *heap_crear(cmp_func_t cmp) {
 }
 
 void heapify(void *arreglo[], cmp_func_t cmp, size_t n) {
-    size_t k = buscar_padre(n) + 1;
+    size_t k = n/2 + 1;
     do {
         downheap(arreglo, cmp, k - 1, n);
         k--;
@@ -124,7 +124,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
 
 bool redimensionar(heap_t *heap, size_t largo_nuevo) {
     void **arreglo = heap->arreglo;
-    void *arreglo_nuevo = realloc(arreglo, sizeof(void *) * largo_nuevo);
+    void **arreglo_nuevo = realloc(arreglo, sizeof(void *) * largo_nuevo);
     if (!arreglo_nuevo) {
         return false;
     }

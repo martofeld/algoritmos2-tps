@@ -202,3 +202,8 @@ void pruebas_heap_alumno() {
     pruebas_heapsort_mayor_a_menor();
     pruebas_destruyendo();
 }
+
+int main(){
+    pruebas_heap_alumno();
+    return 0;
+}
