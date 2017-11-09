@@ -37,6 +37,17 @@ visit_t* add_visit(hash_t* hash, hash_iter_t* iter){
 	}
 	return visit;
 }
+
+int compare_visits(visit_t* visit1, visit_t* visit2){
+    if (visit1->value == visit2->value) {
+        return 0;
+    }
+    if (visit1->value < visit2->value) {
+        return -1;
+    }
+return 1;
+
+}
 //la funcion de comparacion del heap se fija por cantidad de visitas
 
 void most_visited(size_t n, hash_t* visited ){
