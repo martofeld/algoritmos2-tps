@@ -35,11 +35,16 @@ int handle_input(char *line) {
     char **splited = split(line, ' ');
     int length= count_length(splited);
 
+    hash_t* visited= hash_crear(destruir_dato);
+
+
     if (strcmp(splited[0], NEW_FILE) == 0) {
         if (length != 3) {
             print_command_error(NEW_FILE);
         } else {
-            read_file(splited[1]);
+            //read_file(splited[1]);
+            hash_t* posible_attack= start(visited);
+            find_attack(posible_attack);
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
         if (length != 4) {
@@ -51,7 +56,7 @@ int handle_input(char *line) {
         if (length != 3) {
             print_command_error(MOST_VISITED);
         } else {
-            most_visited(splited[1]);
+            most_visited(splited[1], visited);
 
         }
     }
