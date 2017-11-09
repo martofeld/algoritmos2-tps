@@ -16,3 +16,6 @@ add_executable(lista ${SOURCE_FILES} ${COMMONS})
 
 set(SOURCE_FILES hash/hash.c hash/pruebas_catedra.c)
 add_executable(hash ${SOURCE_FILES} ${COMMONS})
+
+set(SOURCE_FILES abb/abb.c abb/pruebas_abb_alumno.c abb/pila.c)
+add_executable(abb ${SOURCE_FILES} ${COMMONS})
