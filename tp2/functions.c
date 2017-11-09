@@ -1,29 +1,22 @@
+#include "tp2.h"
+#define TIME 2
+
 typedef struct visit{
 	const char* key;
 	size_t value;	
-};
-
-char* copy_str(char* str){
-	size_t largo= strlen(str);
-	char* str_aux= malloc(sizeof(char)* (largo+1));
-	if(!str_aux){
-		return NULL;
-	}
-	strcpy(str_aux,str);
-	return str_aux;
-}
+}visit_t;
 
 visit_t* new_visit(const char* key, size_t value){
 	visit_t* visit= malloc(sizeof(visit_t));
 	if(!visit){
 		return NULL;
 	}
-	const char* key_aux= copy_str(key);
+	const char* key_aux= strcopy(key);
 	if(!key_aux){
 		free(visit);
 		return NULL;
 	}
-	visit->key= key; //copiar clave
+	visit->key= key_aux;
 	visit->value= value;
 	return visit
 }
@@ -51,8 +44,10 @@ return 1;
 //la funcion de comparacion del heap se fija por cantidad de visitas
 
 void most_visited(size_t n, hash_t* visited ){
-	heap_t* n_visited= heap_crear(cmp);
+
+	heap_t* n_visited= heap_crear(compare_visits);
 	hash_iter_t iter= hash_iter_crear(visited);
+
 	for (int i=0; i<n; i++){
 		visit_t* visit= add_visit(visited,iter)//verificar que se crea
 		heap_encolar(n_visited, visit);
@@ -71,15 +66,57 @@ void most_visited(size_t n, hash_t* visited ){
 		}
 	}
 	fprintf(stderr, "%s\n","Sitios más visitados:");
+
 	//desencolar e imprimir
 
+	hash_iter_destruir(iter);
 }
 
-void find_attack(){
-	hash_t* hash= hash_crear(destruir_dato);
-	// chequear si se crea el hash?
+bool its_attack(time_t time1, time_t time2){
+	double time_gap= difftime(time2, time 1);
+	if(time_gap >= TIME){
+		return True;
+	}
+	return False;
+}
 
+void find_attack(hash_t* posible_atack){
 
+	hash_iter_t* iter_hash= hash_iter_crear(posible_atack);
+
+	while (!hash_iter_al_final(iter_hash)){
+
+		const char* key= hash_iter_ver_actual(iter_hash);
+		lista_t* value= hash_obtener(hash, key);
+
+		lista_iter_t* iter_list_1= lista_iter_crear(value);
+		lista_iter_t* iter_list_2= lista_iter_crear(value);
+
+		for(int i=0; i<5; i++){
+			if(lista_iter_al_final(iter_list_2)){
+				break;
+			}
+			lista_iter_avanzar(iter_list_2);
+		}
+
+		while(!lista_iter_al_final(iter_list_2)){
+			time_t time1= lista_iter_ver_actual(iter_list_1);
+			time_t time2= lista_iter_ver_actual(iter_list_2);
+			if (its_attack(time1,time2)){
+				fprintf(stdout, "%s\n", "DoS: %s", key);
+			}
+			lista_iter_avanzar(iter_list_1);
+			lista_iter_avanzar(iter_list_2);
+		}
+
+		hash_iter_avanzar(iter_hash);
+
+		lista_iter_destruir(iter_list_1);
+		lista_iter_destruir(iter_list_2);
+
+	}
+	fprintf(stdout, "%s\n", "OK");
+	hash_iter_destruir(iter_hash);
 }
 
 time_t iso8601_to_time(const char* iso8601)
@@ -89,12 +126,18 @@ time_t iso8601_to_time(const char* iso8601)
     return mktime(&bktime);
 }
 
-int start(hash_t* visited) {
+hash_t* start(const char* logs, hash_t* visited) {
+
 	hash_t* attack= hash_crear(destruir_dato);
+
+	FILE *file= fopen(logs,"r");
+	if(!file){
+		return NULL;
+	}
     char *line = NULL;
     size_t length = 0;
     ssize_t read; //combo getline
-    while ((read = getline(&line, &length, stdin)) > 0) {
+    while ((read = getline(&line, &length, file)) > 0) {
         if (line[read - 1] == '\n') {
             line[read - 1] = '\0';
         }
@@ -128,3 +171,5 @@ int start(hash_t* visited) {
     free(line);
     return attack;
 }
+
+//Destruir todos los iteradores

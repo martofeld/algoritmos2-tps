@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "strutil.h"
 
 #define NEW_FILE "agregar_archivo"
@@ -43,7 +44,7 @@ int handle_input(char *line) {
             print_command_error(NEW_FILE);
         } else {
             //read_file(splited[1]);
-            hash_t* posible_attack= start(visited);
+            hash_t* posible_attack= start(splited[1],visited);
             find_attack(posible_attack);
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
