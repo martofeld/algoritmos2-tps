@@ -4,8 +4,10 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "tp2.h"
+#include "tdas/hash.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <time.h>
 #include "strutil.h"

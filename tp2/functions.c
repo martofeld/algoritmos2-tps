@@ -1,5 +1,57 @@
 #include "tp2.h"
+#include "function.h"
 #define TIME 2
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+hash_t* start(const char* logs, hash_t* visited) {
+
+	hash_t* attack= hash_crear(destruir_dato);
+
+	FILE *file= fopen(logs,"r");
+	if(!file){
+		return NULL;
+	}
+    char *line = NULL;
+    size_t length = 0;
+    ssize_t read; //combo getline
+    while ((read = getline(&line, &length, file)) > 0) {
+        if (line[read - 1] == '\n') {
+            line[read - 1] = '\0';
+        }
+
+        char** splited= split(line);
+        const char* ip= splited[0];
+        time_t time= iso8601_to_time(splited[1]);
+        const char* resource= splited[3]; //numero magico
+
+
+        if(hash_pertenece(visited,resourse)){
+        	size_t visits= hash_obtener(visited,resourse);
+        	visits++;
+        }
+        else {
+        	hash_guardar(visited, resourse, 1); //puntero a 1
+        }
+
+        if(hash_pertenece(attack,ip)){
+        	lista_t* times= hash_obtener(attack,ip);
+        	lista_insertar_ultimo(times, time);
+        }
+        else{
+        	lista_t* times= lista_crear();
+        	lista_insertar_ultimo(times, time);
+        	hash_guardar(attack, times);
+        }
+
+    }
+    free(splited);
+    free(line);
+    return attack;
+}
+
 
 typedef struct visit{
 	const char* key;
@@ -18,7 +70,7 @@ visit_t* new_visit(const char* key, size_t value){
 	}
 	visit->key= key_aux;
 	visit->value= value;
-	return visit
+	return visit;
 }
 
 visit_t* add_visit(hash_t* hash, hash_iter_t* iter){
@@ -65,10 +117,22 @@ void most_visited(size_t n, hash_t* visited ){
 			hash_iter_avanzar(iter);
 		}
 	}
-	fprintf(stderr, "%s\n","Sitios más visitados:");
+	fprintf(stdout, "%s\n","Sitios más visitados:");
 
-	//desencolar e imprimir
+	visit_t** array[n];
 
+	for(size_t i = 0; i < n; i++) {
+		array[i] = heap_desencolar(n_visited);
+	}
+
+	for(size_t j = n; n > 0; i--) {
+		visit_t* aux = array[i];
+		const char* ip = aux->key;
+		size_t value = aux->value;
+		fprintf(stdout, "%s\n", "\t %s %d", ip, value);
+	}
+
+	fprintf(stdout, "%s\n", "OK");
 	hash_iter_destruir(iter);
 }
 
@@ -92,10 +156,7 @@ void find_attack(hash_t* posible_atack){
 		lista_iter_t* iter_list_1= lista_iter_crear(value);
 		lista_iter_t* iter_list_2= lista_iter_crear(value);
 
-		for(int i=0; i<5; i++){
-			if(lista_iter_al_final(iter_list_2)){
-				break;
-			}
+		for(int i=0; i<5 && !lista_iter_al_final(iter_list_2); i++){
 			lista_iter_avanzar(iter_list_2);
 		}
 
@@ -126,50 +187,5 @@ time_t iso8601_to_time(const char* iso8601)
     return mktime(&bktime);
 }
 
-hash_t* start(const char* logs, hash_t* visited) {
-
-	hash_t* attack= hash_crear(destruir_dato);
-
-	FILE *file= fopen(logs,"r");
-	if(!file){
-		return NULL;
-	}
-    char *line = NULL;
-    size_t length = 0;
-    ssize_t read; //combo getline
-    while ((read = getline(&line, &length, file)) > 0) {
-        if (line[read - 1] == '\n') {
-            line[read - 1] = '\0';
-        }
-
-        char** splited= split(line);
-        const char* ip= splited[0];
-        time_t time= iso8601_to_time(splited[1]);
-        const char* resourse= splited[3]; //numero magico
-
-
-        if(hash_pertenece(visited,resourse)){
-        	size_t visits= hash_obtener(visited,resourse);
-        	visits++;
-        }
-        if(!hash_pertenece(visited,resourse)){
-        	hash_guardar(visited, resourse, 1); //tipo
-        }
-
-        if(hash_pertenece(attack,ip)){
-        	lista_t* times= hash_obtener(attack,ip);
-        	lista_insertar_ultimo(times, time);
-        }
-        else{
-        	lista_t* times= lista_crear();
-        	lista_insertar_ultimo(times, time);
-        	hash_guardar(attack, times);
-        }
-
-    }
-    free(splited);
-    free(line);
-    return attack;
-}
 
 //Destruir todos los iteradores
