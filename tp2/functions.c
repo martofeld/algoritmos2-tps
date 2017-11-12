@@ -159,7 +159,7 @@ void print_most_visited(heap_t* n_visited, int n) {
 		visit_t* aux = array[j];
 		const char* ip = aux->key;
 		size_t value = aux->value;
-		fprintf(stdout, "%s\n", "\t%s %d\n", ip, value);
+        fprintf(stdout, "\t%s %zu\n", ip, value);
 	}
 
 	fprintf(stdout, "%s\n", "OK");
