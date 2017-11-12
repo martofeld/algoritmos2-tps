@@ -94,6 +94,25 @@ return 1;
 
 }
 //la funcion de comparacion del heap se fija por cantidad de visitas
+void print_most_visited(heap_t* n_visited) {
+	fprintf(stdout, "%s\n","Sitios más visitados:");
+
+	visit_t** array[n];
+
+	for(size_t i = 0; i < n; i++) {
+		array[i] = heap_desencolar(n_visited);
+	}
+
+	for(size_t j = n; n > 0; i--) {
+		visit_t* aux = array[i];
+		const char* ip = aux->key;
+		size_t value = aux->value;
+		fprintf(stdout, "%s\n", "\t%s %d\n", ip, value);
+	}
+
+	fprintf(stdout, "%s\n", "OK");
+
+}
 
 void most_visited(size_t n, hash_t* visited ){
 
@@ -101,7 +120,7 @@ void most_visited(size_t n, hash_t* visited ){
 	hash_iter_t iter= hash_iter_crear(visited);
 
 	for (int i=0; i<n; i++){
-		visit_t* visit= add_visit(visited,iter)//verificar que se crea
+		visit_t* visit= add_visit(visited,iter);//verificar que se crea
 		heap_encolar(n_visited, visit);
 		hash_iter_avanzar(iter);
 	}
@@ -117,27 +136,14 @@ void most_visited(size_t n, hash_t* visited ){
 			hash_iter_avanzar(iter);
 		}
 	}
-	fprintf(stdout, "%s\n","Sitios más visitados:");
 
-	visit_t** array[n];
-
-	for(size_t i = 0; i < n; i++) {
-		array[i] = heap_desencolar(n_visited);
-	}
-
-	for(size_t j = n; n > 0; i--) {
-		visit_t* aux = array[i];
-		const char* ip = aux->key;
-		size_t value = aux->value;
-		fprintf(stdout, "%s\n", "\t %s %d", ip, value);
-	}
-
-	fprintf(stdout, "%s\n", "OK");
 	hash_iter_destruir(iter);
 }
 
+
+
 bool its_attack(time_t time1, time_t time2){
-	double time_gap= difftime(time2, time 1);
+	double time_gap= difftime(time2, time1);
 	if(time_gap >= TIME){
 		return True;
 	}
