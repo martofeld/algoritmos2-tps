@@ -3,14 +3,12 @@
 //
 #define _POSIX_C_SOURCE 200809L
 
-#include "tp2.h"
 #include "tdas/hash.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <stddef.h>
 #include <string.h>
-#include <time.h>
 #include "strutil.h"
+#include "functions.h"
 
 #define NEW_FILE "agregar_archivo"
 #define VISITORS "ver_visitantes"
@@ -21,11 +19,7 @@ void print_command_error(char *command) {
     fprintf(stderr, COMMAND_ERROR, command);
 }
 
-void read_file(const char *file_path) {
-
-}
-
-size_t count_length(char** splited){
+size_t count_length(char **splited) {
     size_t length = 1;
     while (splited[length - 1]) {
         length++; //Count params
@@ -36,18 +30,20 @@ size_t count_length(char** splited){
 
 int handle_input(char *line) {
     char **splited = split(line, ' ');
-    int length= count_length(splited);
+    size_t length = count_length(splited);
 
-    hash_t* visited= hash_crear(destruir_dato);
+    hash_t *visited_pages = hash_crear(NULL);
+    abb_t *visitors = abb_crear(strcmp, NULL); // TODO: cambiar a una funcion como la gente
 
-
+    int res_code = 0;
     if (strcmp(splited[0], NEW_FILE) == 0) {
         if (length != 3) {
             print_command_error(NEW_FILE);
         } else {
             //read_file(splited[1]);
-            hash_t* posible_attack= start(splited[1],visited);
-            find_attack(posible_attack);
+            hash_t *dos_hash = hash_crear(NULL);
+            read_file(splited[1], visited_pages, visitors, dos_hash);
+            res_code = find_attack(dos_hash);
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
         if (length != 4) {
@@ -59,11 +55,11 @@ int handle_input(char *line) {
         if (length != 3) {
             print_command_error(MOST_VISITED);
         } else {
-            most_visited(splited[1], visited);
+            most_visited(atoi(splited[1]), visited_pages);
 
         }
     }
-    return 0;
+    return res_code;
 }
 
 int start() {

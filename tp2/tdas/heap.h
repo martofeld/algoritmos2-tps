@@ -1,12 +1,13 @@
 #include <stddef.h>
 #include <stdbool.h>
+
 #ifndef HEAP_H
 #define HEAP_H
 
 struct heap;
 typedef struct heap heap_t;
 
-typedef int (*cmp_func_t) (const void *a, const void *b);
+typedef int (*cmp_func_t)(const void *a, const void *b);
 
 // Crea un heap vacio
 heap_t *heap_crear(cmp_func_t cmp);

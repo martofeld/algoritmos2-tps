@@ -4,14 +4,14 @@
 #include "lista.h"
 
 // --------- NODO ---------
-typedef struct nodo nodo_t;
+typedef struct nodo nodo_lista_t;
 struct nodo {
     void *dato;
-    nodo_t *proximo;
+    nodo_lista_t *proximo;
 };
 
-nodo_t *nodo_crear(void *dato, nodo_t *proximo) {
-    nodo_t *nodo = malloc(sizeof(nodo_t));
+nodo_lista_t *nodo_lista_crear(void *dato, nodo_lista_t *proximo) {
+    nodo_lista_t *nodo = malloc(sizeof(nodo_lista_t));
     if (!nodo) return NULL;
 
     nodo->dato = dato;
@@ -19,7 +19,7 @@ nodo_t *nodo_crear(void *dato, nodo_t *proximo) {
     return nodo;
 }
 
-void nodo_destruir(nodo_t *nodo) {
+void nodo_lista_destruir(nodo_lista_t *nodo) {
     free(nodo);
 }
 // --------- END NODO ---------
@@ -27,8 +27,8 @@ void nodo_destruir(nodo_t *nodo) {
 // --------- LISTA ---------
 struct lista {
     size_t cantidad;
-    nodo_t *primero;
-    nodo_t *ultimo;
+    nodo_lista_t *primero;
+    nodo_lista_t *ultimo;
 };
 
 lista_t *lista_crear() {
@@ -67,7 +67,7 @@ void *lista_ver_ultimo(const lista_t *lista) {
 }
 
 bool lista_insertar_primero(lista_t *lista, void *dato) {
-    nodo_t *nodo = nodo_crear(dato, lista->primero);
+    nodo_lista_t *nodo = nodo_lista_crear(dato, lista->primero);
     if (!nodo) {
         return false;
     }
@@ -81,7 +81,7 @@ bool lista_insertar_primero(lista_t *lista, void *dato) {
 }
 
 bool lista_insertar_ultimo(lista_t *lista, void *dato) {
-    nodo_t *nodo = nodo_crear(dato, NULL);
+    nodo_lista_t *nodo = nodo_lista_crear(dato, NULL);
     if (!nodo) {
         return false;
     }
@@ -99,10 +99,10 @@ bool lista_insertar_ultimo(lista_t *lista, void *dato) {
 void *lista_borrar_primero(lista_t *lista) {
     if (lista_esta_vacia(lista)) return NULL;
 
-    nodo_t *primero = lista->primero;
+    nodo_lista_t *primero = lista->primero;
     void *dato = primero->dato;
     lista->primero = primero->proximo;
-    nodo_destruir(primero);
+    nodo_lista_destruir(primero);
     lista->cantidad--;
 
     if (lista->cantidad == 0) {
@@ -118,7 +118,7 @@ bool lista_esta_vacia(const lista_t *lista) {
 void lista_iterar(lista_t *lista, bool visitar(void *dato, void *extra), void *extra) {
     if (visitar == NULL) return;
 
-    nodo_t *actual = lista->primero;
+    nodo_lista_t *actual = lista->primero;
     while (actual) {
         if (!visitar(actual->dato, extra)) {
             break;
@@ -131,8 +131,8 @@ void lista_iterar(lista_t *lista, bool visitar(void *dato, void *extra), void *e
 // --------- ITERADOR ---------
 struct lista_iter {
     lista_t *lista;
-    nodo_t *anterior;
-    nodo_t *actual;
+    nodo_lista_t *anterior;
+    nodo_lista_t *actual;
 };
 
 lista_iter_t *lista_iter_crear(lista_t *lista) {
@@ -168,7 +168,7 @@ void lista_iter_destruir(lista_iter_t *iter) {
 }
 
 bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
-    nodo_t *nodo = nodo_crear(dato, iter->actual);
+    nodo_lista_t *nodo = nodo_lista_crear(dato, iter->actual);
     if (!nodo) return false;
 
     if (lista_iter_al_final(iter)) {
@@ -188,7 +188,7 @@ bool lista_iter_insertar(lista_iter_t *iter, void *dato) {
 void *lista_iter_borrar(lista_iter_t *iter) {
     if (lista_iter_al_final(iter)) return NULL;
 
-    nodo_t *destruir = iter->actual;
+    nodo_lista_t *destruir = iter->actual;
     iter->actual = destruir->proximo;
 
     if (destruir == iter->lista->primero) {
@@ -202,7 +202,7 @@ void *lista_iter_borrar(lista_iter_t *iter) {
     }
 
     void *valor = destruir->dato;
-    nodo_destruir(destruir);
+    nodo_lista_destruir(destruir);
     iter->lista->cantidad--;
     return valor;
 }

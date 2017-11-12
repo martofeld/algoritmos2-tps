@@ -1,19 +1,24 @@
-#include "tp2.h"
-#include "function.h"
-#define TIME 2
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#define _XOPEN_SOURCE
+#define _POSIX_C_SOURCE 200809L
 
-hash_t* start(const char* logs, hash_t* visited) {
+#include "functions.h"
+#include "tdas/lista.h"
 
-	hash_t* attack= hash_crear(destruir_dato);
+#define TIME_PERIOD 2
+#define TIME_FORMAT "%FT%T%z"
 
-	FILE *file= fopen(logs,"r");
-	if(!file){
-		return NULL;
-	}
+time_t iso8601_to_time(const char *iso8601) {
+    struct tm bktime = {0};
+    strptime(iso8601, TIME_FORMAT, &bktime);
+    return mktime(&bktime);
+}
+
+void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *dos) {
+    FILE *file = fopen(file_path, "r");
+    if (!file) {
+        printf("No se encontro el archivo");
+        return;
+    }
     char *line = NULL;
     size_t length = 0;
     ssize_t read; //combo getline
@@ -22,170 +27,164 @@ hash_t* start(const char* logs, hash_t* visited) {
             line[read - 1] = '\0';
         }
 
-        char** splited= split(line);
-        const char* ip= splited[0];
-        time_t time= iso8601_to_time(splited[1]);
-        const char* resource= splited[3]; //numero magico
+        char **splited = split(line, ' ');
+        const char *ip = splited[0];
+        char *time = splited[1];
+        const char *resource = splited[3];
 
-
-        if(hash_pertenece(visited,resourse)){
-        	size_t visits= hash_obtener(visited,resourse);
-        	visits++;
-        }
-        else {
-        	hash_guardar(visited, resourse, 1); //puntero a 1
-        }
-
-        if(hash_pertenece(attack,ip)){
-        	lista_t* times= hash_obtener(attack,ip);
-        	lista_insertar_ultimo(times, time);
-        }
-        else{
-        	lista_t* times= lista_crear();
-        	lista_insertar_ultimo(times, time);
-        	hash_guardar(attack, times);
+        if (hash_pertenece(visited, resource)) {
+            size_t *visits = hash_obtener(visited, resource);
+            *visits += 1;
+        } else {
+            size_t *pointer = malloc(sizeof(size_t));
+            *pointer = 1;
+            hash_guardar(visited, resource, pointer);
         }
 
+        if (hash_pertenece(dos, ip)) {
+            lista_t *times = hash_obtener(dos, ip);
+            lista_insertar_ultimo(times, time);
+        } else {
+            lista_t *times = lista_crear();
+            lista_insertar_ultimo(times, time);
+            hash_guardar(dos, ip, times);
+        }
+
+        abb_guardar(visitors, ip, NULL);
+        free_strv(splited);
     }
-    free(splited);
     free(line);
-    return attack;
+    fclose(file);
+}
+
+bool its_attack(char *time1_str, char *time2_str) {
+    time_t time1 = iso8601_to_time(time1_str);
+    time_t time2 = iso8601_to_time(time2_str);
+    double time_gap = difftime(time2, time1);
+    if (time_gap >= TIME_PERIOD) {
+        return true;
+    }
+    return false;
+}
+
+int find_attack(hash_t *dos) {
+
+    hash_iter_t *iter_hash = hash_iter_crear(dos);
+
+    while (!hash_iter_al_final(iter_hash)) {
+
+        const char *key = hash_iter_ver_actual(iter_hash);
+        lista_t *value = hash_obtener(dos, key);
+
+        lista_iter_t *iter_list_1 = lista_iter_crear(value);
+        lista_iter_t *iter_list_2 = lista_iter_crear(value);
+
+        for (int i = 0; i < 5 && !lista_iter_al_final(iter_list_2); i++) {
+            lista_iter_avanzar(iter_list_2);
+        }
+
+        while (!lista_iter_al_final(iter_list_2)) {
+            char *time1 = lista_iter_ver_actual(iter_list_1);
+            char *time2 = lista_iter_ver_actual(iter_list_2);
+            if (its_attack(time1, time2)) {
+                fprintf(stdout, "\tDoS: %s\n", key);
+            }
+            lista_iter_avanzar(iter_list_1);
+            lista_iter_avanzar(iter_list_2);
+        }
+
+        hash_iter_avanzar(iter_hash);
+        lista_iter_destruir(iter_list_1);
+        lista_iter_destruir(iter_list_2);
+    }
+    hash_iter_destruir(iter_hash);
+    return 0;
 }
 
 
-typedef struct visit{
-	const char* key;
-	size_t value;	
-}visit_t;
+typedef struct visit {
+    const char *key;
+    size_t value;
+} visit_t;
 
-visit_t* new_visit(const char* key, size_t value){
-	visit_t* visit= malloc(sizeof(visit_t));
-	if(!visit){
-		return NULL;
-	}
-	const char* key_aux= strcopy(key);
-	if(!key_aux){
-		free(visit);
-		return NULL;
-	}
-	visit->key= key_aux;
-	visit->value= value;
-	return visit;
+visit_t *new_visit(const char *key, size_t *value) {
+    visit_t *visit = malloc(sizeof(visit_t));
+    if (!visit) {
+        return NULL;
+    }
+    const char *key_aux = strcopy(key);
+    if (!key_aux) {
+        free(visit);
+        return NULL;
+    }
+    visit->key = key_aux;
+    visit->value = *value;
+    return visit;
 }
 
-visit_t* add_visit(hash_t* hash, hash_iter_t* iter){
-	const char* key= hash_iter_ver_actual(iter);
-	size_t value= hash_obtener(hash, key);
-	visit_t* visit= new_visit(key, value);
-	if(!visit){
-		return NULL;
-	}
-	return visit;
+visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) {
+    const char *key = hash_iter_ver_actual(iter);
+    size_t *value = hash_obtener(hash, key);
+    visit_t *visit = new_visit(key, value);
+    if (!visit) {
+        return NULL;
+    }
+    return visit;
 }
 
-int compare_visits(visit_t* visit1, visit_t* visit2){
+int compare_visits(const visit_t *visit1, const visit_t *visit2) {
     if (visit1->value == visit2->value) {
         return 0;
     }
     if (visit1->value < visit2->value) {
         return -1;
     }
-return 1;
-
-}
-//la funcion de comparacion del heap se fija por cantidad de visitas
-
-void most_visited(size_t n, hash_t* visited ){
-
-	heap_t* n_visited= heap_crear(compare_visits);
-	hash_iter_t iter= hash_iter_crear(visited);
-
-	for (int i=0; i<n; i++){
-		visit_t* visit= add_visit(visited,iter)//verificar que se crea
-		heap_encolar(n_visited, visit);
-		hash_iter_avanzar(iter);
-	}
-
-	while(!hash_iter_al_final(visited)){
-		const char* key= hash_iter_ver_actual(iter);
-		size_t value= hash_obtener(visited, key);
-
-		if(heap_ver_min(n_visited)<value){
-			heap_desencolar(n_visited);
-			visit_t* visit= new_visit(key, value);//verificar que se crea
-			heap_encolar(n_visited,visit);
-			hash_iter_avanzar(iter);
-		}
-	}
-	fprintf(stdout, "%s\n","Sitios más visitados:");
-
-	visit_t** array[n];
-
-	for(size_t i = 0; i < n; i++) {
-		array[i] = heap_desencolar(n_visited);
-	}
-
-	for(size_t j = n; n > 0; i--) {
-		visit_t* aux = array[i];
-		const char* ip = aux->key;
-		size_t value = aux->value;
-		fprintf(stdout, "%s\n", "\t %s %d", ip, value);
-	}
-
-	fprintf(stdout, "%s\n", "OK");
-	hash_iter_destruir(iter);
+    return 1;
 }
 
-bool its_attack(time_t time1, time_t time2){
-	double time_gap= difftime(time2, time 1);
-	if(time_gap >= TIME){
-		return True;
-	}
-	return False;
+int compare_visits_wrapper(const void *visit1, const void *visit2) {
+    return compare_visits(visit1, visit2);
 }
 
-void find_attack(hash_t* posible_atack){
+void most_visited(int n, const hash_t *visited) {
 
-	hash_iter_t* iter_hash= hash_iter_crear(posible_atack);
+    heap_t *n_visited = heap_crear(compare_visits_wrapper);
+    hash_iter_t *hash_iter = hash_iter_crear(visited);
 
-	while (!hash_iter_al_final(iter_hash)){
+    for (int i = 0; i < n; i++) {
+        visit_t *visit = add_visit(visited, hash_iter);//verificar que se crea
+        heap_encolar(n_visited, visit);
+        hash_iter_avanzar(hash_iter);
+    }
 
-		const char* key= hash_iter_ver_actual(iter_hash);
-		lista_t* value= hash_obtener(hash, key);
+    while (!hash_iter_al_final(hash_iter)) {
+        const char *key = hash_iter_ver_actual(hash_iter);
+        size_t *value = hash_obtener(visited, key);
+        visit_t *top = heap_ver_tope(n_visited);
+        if (top->value < *value) {
+            heap_desencolar(n_visited);
+            visit_t *visit = new_visit(key, value);//verificar que se crea
+            heap_encolar(n_visited, visit);
+            hash_iter_avanzar(hash_iter);
+        }
+    }
+    fprintf(stdout, "%s\n", "Sitios más visitados:");
 
-		lista_iter_t* iter_list_1= lista_iter_crear(value);
-		lista_iter_t* iter_list_2= lista_iter_crear(value);
+    visit_t *array[n];
 
-		for(int i=0; i<5 && !lista_iter_al_final(iter_list_2); i++){
-			lista_iter_avanzar(iter_list_2);
-		}
+    for (int i = 0; i < n; i++) {
+        array[i] = heap_desencolar(n_visited);
+    }
 
-		while(!lista_iter_al_final(iter_list_2)){
-			time_t time1= lista_iter_ver_actual(iter_list_1);
-			time_t time2= lista_iter_ver_actual(iter_list_2);
-			if (its_attack(time1,time2)){
-				fprintf(stdout, "%s\n", "DoS: %s", key);
-			}
-			lista_iter_avanzar(iter_list_1);
-			lista_iter_avanzar(iter_list_2);
-		}
+    for (int j = n; j > 0; j--) {
+        visit_t *aux = array[j];
+        const char *ip = aux->key;
+        size_t value = aux->value;
+        fprintf(stdout, "\t %s %zu", ip, value);
+    }
 
-		hash_iter_avanzar(iter_hash);
-
-		lista_iter_destruir(iter_list_1);
-		lista_iter_destruir(iter_list_2);
-
-	}
-	fprintf(stdout, "%s\n", "OK");
-	hash_iter_destruir(iter_hash);
+    fprintf(stdout, "%s\n", "OK");
+    hash_iter_destruir(hash_iter);
 }
-
-time_t iso8601_to_time(const char* iso8601)
-{
-    struct tm bktime = { 0 };
-    strptime(iso8601, TIME_FORMAT, &bktime);
-    return mktime(&bktime);
-}
-
 
 //Destruir todos los iteradores
