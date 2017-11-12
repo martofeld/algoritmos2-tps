@@ -145,6 +145,26 @@ int compare_visits(const visit_t *visit1, const visit_t *visit2) {
 int compare_visits_wrapper(const void *visit1, const void *visit2) {
     return compare_visits(visit1, visit2);
 }
+//la funcion de comparacion del heap se fija por cantidad de visitas
+void print_most_visited(heap_t* n_visited, int n) {
+	fprintf(stdout, "%s\n","Sitios más visitados:");
+
+	visit_t* array[n];
+
+	for(int i = 0; i < n; i++) {
+		array[i] = heap_desencolar(n_visited);
+	}
+
+	for(int j = n; j > 0; j--) {
+		visit_t* aux = array[j];
+		const char* ip = aux->key;
+		size_t value = aux->value;
+		fprintf(stdout, "%s\n", "\t%s %d\n", ip, value);
+	}
+
+	fprintf(stdout, "%s\n", "OK");
+
+}
 
 void most_visited(int n, const hash_t *visited) {
 
@@ -157,34 +177,20 @@ void most_visited(int n, const hash_t *visited) {
         hash_iter_avanzar(hash_iter);
     }
 
-    while (!hash_iter_al_final(hash_iter)) {
-        const char *key = hash_iter_ver_actual(hash_iter);
-        size_t *value = hash_obtener(visited, key);
-        visit_t *top = heap_ver_tope(n_visited);
-        if (top->value < *value) {
-            heap_desencolar(n_visited);
-            visit_t *visit = new_visit(key, value);//verificar que se crea
-            heap_encolar(n_visited, visit);
-            hash_iter_avanzar(hash_iter);
-        }
-    }
-    fprintf(stdout, "%s\n", "Sitios más visitados:");
+	while(!hash_iter_al_final(hash_iter)){
+		const char* key= hash_iter_ver_actual(hash_iter);
+		size_t *value= hash_obtener(visited, key);
+visit_t *top = heap_ver_tope(n_visited);
+		if(top->value<*value){
+			heap_desencolar(n_visited);
+			visit_t* visit= new_visit(key, value);//verificar que se crea
+			heap_encolar(n_visited,visit);
+			hash_iter_avanzar(hash_iter);
+		}
+	}
 
-    visit_t *array[n];
-
-    for (int i = 0; i < n; i++) {
-        array[i] = heap_desencolar(n_visited);
-    }
-
-    for (int j = n; j > 0; j--) {
-        visit_t *aux = array[j];
-        const char *ip = aux->key;
-        size_t value = aux->value;
-        fprintf(stdout, "\t %s %zu", ip, value);
-    }
-
-    fprintf(stdout, "%s\n", "OK");
-    hash_iter_destruir(hash_iter);
+    print_most_visited(n_visited, n);
+	hash_iter_destruir(hash_iter);
 }
 
 //Destruir todos los iteradores
