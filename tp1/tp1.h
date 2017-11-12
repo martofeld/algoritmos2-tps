@@ -5,6 +5,6 @@
 #ifndef PROJECT_TP1_H
 #define PROJECT_TP1_H
 
-int run(const char *file_path);
+int start_wachencoin(const char *file_path);
 
 #endif //PROJECT_TP1_H
