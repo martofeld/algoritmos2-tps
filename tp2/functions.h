@@ -1,9 +1,9 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-#include "hash.h"
-#include "heap.h"
-#include "abb.h"
-#include "lista.h"
+#include "tdas/hash.h"
+#include "tdas/heap.h"
+#include "tdas/abb.h"
+#include "tdas/lista.h"
 #include "strutil.h"
 #include <stdlib.h>
 #include <stdio.h>

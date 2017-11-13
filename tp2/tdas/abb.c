@@ -292,11 +292,14 @@ void apilar_izquierdos_condicional(pila_t* pila, abb_t* abb, nodo_t* inicio, cha
         if(in_range(abb, actual->clave, desde, hasta)) {
             pila_apilar(pila, actual);
             actual = actual->izq;
-        } else if (in_range(abb, actual->der->clave, desde, hasta)){
+        } else if (actual->der && in_range(abb, actual->der->clave, desde, hasta)){
             pila_apilar(pila, actual->der);
             actual = actual->der;
         } else {
-            actual = NULL;
+            if(comparar_clave(abb, actual->clave, desde) < 0)
+                actual = actual->der;
+            else
+                actual = actual->izq;
         }
     }
 }
@@ -308,7 +311,7 @@ void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*), char* desde, ch
     if (abb_cantidad(abb) == 0) return;
 
     nodo_t* primero = abb->raiz;
-    while (!in_range(abb, primero->clave, desde, hasta)){ // esto va a ir hasta que encuentre el primero en el rango
+    while (primero && !in_range(abb, primero->clave, desde, hasta)){ // esto va a ir hasta que encuentre el primero en el rango
         if (comparar_clave(abb, primero->clave, desde) < 0){ // Si la clave del primero es menor a desde
             primero = primero->der;
         } else {

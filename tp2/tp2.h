@@ -4,11 +4,6 @@
 
 #ifndef TPS_TP2_H
 #define TPS_TP2_H
-#include "hash.h"
-#include "heap.h"
-#include "abb.h"
-#include "lista.h"
-#include "strutil.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
