@@ -60,6 +60,8 @@ int handle_input(char *line) {
 
         }
     }
+    hash_destruir(visited_pages);//////////////////////////////////////////
+    abb_destruir(visitors);
     return res_code;
 }
 

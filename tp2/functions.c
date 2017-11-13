@@ -50,15 +50,16 @@ void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *
 
         if (hash_pertenece(dos, ip)) {
             lista_t *times = hash_obtener(dos, ip);
-            lista_insertar_ultimo(times, time);
+            char* time_aux= strcopy(time);
+            lista_insertar_ultimo(times, strdup(time_aux));//copiar la clave
         } else {
             lista_t *times = lista_crear();
-            lista_insertar_ultimo(times, time);
+            lista_insertar_ultimo(times, strdup(time));
             hash_guardar(dos, ip, times);
         }
 
         abb_guardar(visitors, ip, NULL);
-        free_strv(splited);
+        free_strv(splited);// mal
     }
     free(line);
     fclose(file);
@@ -69,7 +70,9 @@ bool its_attack(const char *time1_str, const char *time2_str) {
     time_t time1 = iso8601_to_time(time1_str);
     time_t time2 = iso8601_to_time(time2_str);
     double time_gap = difftime(time2, time1);
-    if (time_gap <= TIME_PERIOD) {
+    //fprintf(stdout, "%f\n", time_gap);
+    if (time_gap < TIME_PERIOD) {
+        fprintf(stdout, "%f\n", time_gap);
         return true;
     }
     return false;
@@ -109,6 +112,7 @@ int find_attack(hash_t *dos) {
             lista_iter_avanzar(iter_list_2);
         }
 
+        lista_destruir(value,NULL);
         hash_iter_avanzar(iter_hash);
         lista_iter_destruir(iter_list_1);
         lista_iter_destruir(iter_list_2);
