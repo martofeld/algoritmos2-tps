@@ -15,4 +15,6 @@ int find_attack(hash_t *dos);
 
 void read_file(const char *file_path, hash_t *visited, abb_t *abb, hash_t *dos);
 
+void show_visitors(abb_t* visitors, char* since, char* until);
+
 #endif

@@ -69,7 +69,6 @@ abb_t *abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato) {
 }
 
 bool abb_insertar_nodo(abb_t *abb, nodo_t *actual, nodo_t *nuevo_nodo) {
-    //TODO preguntar si compara como strcmp
     int comparacion = comparar_clave(abb, actual->clave, nuevo_nodo->clave);
     if (comparacion == 0) {
         if (abb->destruir_dato)
@@ -277,6 +276,50 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
         nodo_t *actual = pila_desapilar(pila);
         apilar_izquierdos(pila, actual->der);
         if (!visitar(actual->clave, actual->valor, extra)) {
+            break;
+        }
+    }
+    pila_destruir(pila);
+}
+
+bool in_range(abb_t* abb, const char* clave, const char* desde, const char* hasta){
+    return comparar_clave(abb, clave, desde) >= 0 && comparar_clave(abb, clave, hasta) <= 0;
+}
+
+void apilar_izquierdos_condicional(pila_t* pila, abb_t* abb, nodo_t* inicio, char* desde, char* hasta){
+    nodo_t *actual = inicio;
+    while (actual) {
+        if(in_range(abb, actual->clave, desde, hasta)) {
+            pila_apilar(pila, actual);
+            actual = actual->izq;
+        } else if (in_range(abb, actual->der->clave, desde, hasta)){
+            pila_apilar(pila, actual->der);
+            actual = actual->der;
+        } else {
+            actual = NULL;
+        }
+    }
+}
+
+void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*), char* desde, char* hasta){
+    pila_t* pila = pila_crear();
+    if (!pila) return;
+
+    if (abb_cantidad(abb) == 0) return;
+
+    nodo_t* primero = abb->raiz;
+    while (!in_range(abb, primero->clave, desde, hasta)){ // esto va a ir hasta que encuentre el primero en el rango
+        if (comparar_clave(abb, primero->clave, desde) < 0){ // Si la clave del primero es menor a desde
+            primero = primero->der;
+        } else {
+            primero = primero->izq; // Me fui del rango hacia la derecha
+        }
+    }
+    apilar_izquierdos_condicional(pila, abb, primero, desde, hasta);
+    while (!pila_esta_vacia(pila)) {
+        nodo_t *actual = pila_desapilar(pila);
+        apilar_izquierdos_condicional(pila, abb, actual->der, desde, hasta);
+        if (!visitar(actual->clave)) {
             break;
         }
     }
