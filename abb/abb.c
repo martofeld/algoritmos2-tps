@@ -69,7 +69,6 @@ abb_t *abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato) {
 }
 
 bool abb_insertar_nodo(abb_t *abb, nodo_t *actual, nodo_t *nuevo_nodo) {
-    //TODO preguntar si compara como strcmp
     int comparacion = comparar_clave(abb, actual->clave, nuevo_nodo->clave);
     if (comparacion == 0) {
         if (abb->destruir_dato)

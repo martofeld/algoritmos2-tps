@@ -29,12 +29,9 @@ size_t count_length(char **splited) {
 
 }
 
-int handle_input(char *line) {
+int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     char **splited = split(line, ' ');
     size_t length = count_length(splited);
-
-    hash_t *visited_pages = hash_crear(NULL);
-    abb_t *visitors = abb_crear(strcmp, NULL); // TODO: cambiar a una funcion como la gente
 
     int res_code = 0;
     if (strcmp(splited[0], NEW_FILE) == 0) {
@@ -50,7 +47,7 @@ int handle_input(char *line) {
         if (length != 4) {
             print_command_error(VISITORS);
         } else {
-
+            show_visitors(visitors, splited[1], splited[2]);
         }
     } else if (strcmp(splited[0], MOST_VISITED) == 0) {
         if (length != 3) {
@@ -69,11 +66,15 @@ int start() {
     char *line = NULL;
     size_t length = 0;
     ssize_t read; //combo getline
+
+    hash_t *visited_pages = hash_crear(NULL);
+    abb_t *visitors = abb_crear(strcmp, NULL); // TODO: cambiar a una funcion como la gente
+
     while ((read = getline(&line, &length, stdin)) > 0) {
         if (line[read - 1] == '\n') {
             line[read - 1] = '\0';
         }
-        if (handle_input(line) != 0) {
+        if (handle_input(line, visited_pages, visitors) != 0) {
             break;
         }
     }
