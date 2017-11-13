@@ -43,6 +43,14 @@ int compare_ips(const char* ip1, const char* ip2){
     return returnValue;
 }
 
+void destroy_list(lista_t* list){
+    lista_destruir(list, free);
+}
+
+void destroy_list_wrapper(void* value){
+    destroy_list(value);
+}
+
 int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     char **splited = split(line, ' ');
     size_t length = count_length(splited);
@@ -52,9 +60,13 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
         if (length != 3) {
             print_command_error(NEW_FILE);
         } else {
-            hash_t *dos_hash = hash_crear(NULL);
-            read_file(splited[1], visited_pages, visitors, dos_hash);
-            res_code = find_attack(dos_hash);
+            hash_t *dos_hash = hash_crear(destroy_list_wrapper);
+            res_code = read_file(splited[1], visited_pages, visitors, dos_hash);
+            if (res_code == 0) {
+                res_code = find_attack(dos_hash);
+            } else {
+                print_command_error(NEW_FILE);
+            }
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
         if (length != 4) {
@@ -78,7 +90,7 @@ int start() {
     size_t length = 0;
     ssize_t read; //combo getline
 
-    hash_t *visited_pages = hash_crear(NULL);
+    hash_t *visited_pages = hash_crear(free);
     abb_t *visitors = abb_crear(compare_ips, NULL);
 
     while ((read = getline(&line, &length, stdin)) > 0) {
@@ -90,5 +102,7 @@ int start() {
         }
     }
     free(line);
+    hash_destruir(visited_pages);
+    abb_destruir(visitors);
     return 0;
 }

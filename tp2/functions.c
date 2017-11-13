@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <time.h>
 #include "functions.h"
-#include "tdas/hash.h"
-#include "tdas/heap.h"
-#include "tdas/abb.h"
-#include "tdas/lista.h"
 
 #define TIME_PERIOD 2.0
 #define TIME_FORMAT "%FT%T%z"
@@ -19,11 +15,10 @@ time_t iso8601_to_time(const char* iso8601) {
     return mktime(&bktime);
 }
 
-void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *dos) {
+int read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *dos) {
     FILE *file = fopen(file_path, "r");
     if (!file) {
-        fprintf(stdout, "No se encontro el archivo");
-        return;
+        return -1;
     }
     char *line = NULL;
     size_t length = 0;
@@ -62,6 +57,7 @@ void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *
     fprintf(stdout, "OK\n");
     free(line);
     fclose(file);
+    return 0;
 }
 
 
