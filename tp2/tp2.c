@@ -11,10 +11,10 @@
 #include <string.h>
 #include "functions.h"
 #include "strutil.h"
-#include "hash.h"
-#include "heap.h"
-#include "abb.h"
-#include "lista.h"
+#include "tdas/hash.h"
+#include "tdas/heap.h"
+#include "tdas/abb.h"
+#include "tdas/lista.h"
 
 void print_command_error(char *command) {
     fprintf(stderr, COMMAND_ERROR, command);
@@ -29,6 +29,28 @@ size_t count_length(char **splited) {
 
 }
 
+int compare_ips(const char* ip1, const char* ip2){
+    char** splited1 = split(ip1, '.');
+    char** splited2 = split(ip2, '.');
+    size_t length1 = count_length(splited1) - 1;
+    size_t length2 = count_length(splited2) - 1;
+    int returnValue = 0;
+    int i = 0;
+    while(returnValue == 0 && i < length1 && i < length2){
+        returnValue = atoi(splited1[i]) - atoi(splited2[i]);
+        i++;
+    }
+    return returnValue;
+}
+
+void destroy_list(lista_t* list){
+    lista_destruir(list, free);
+}
+
+void destroy_list_wrapper(void* value){
+    destroy_list(value);
+}
+
 int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     char **splited = split(line, ' ');
     size_t length = count_length(splited);
@@ -38,10 +60,13 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
         if (length != 3) {
             print_command_error(NEW_FILE);
         } else {
-            //read_file(splited[1]);
-            hash_t *dos_hash = hash_crear(NULL);
-            read_file(splited[1], visited_pages, visitors, dos_hash);
-            res_code = find_attack(dos_hash);
+            hash_t *dos_hash = hash_crear(destroy_list_wrapper);
+            res_code = read_file(splited[1], visited_pages, visitors, dos_hash);
+            if (res_code == 0) {
+                res_code = find_attack(dos_hash);
+            } else {
+                print_command_error(NEW_FILE);
+            }
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
         if (length != 4) {
@@ -67,8 +92,8 @@ int start() {
     size_t length = 0;
     ssize_t read; //combo getline
 
-    hash_t *visited_pages = hash_crear(NULL);
-    abb_t *visitors = abb_crear(strcmp, NULL); // TODO: cambiar a una funcion como la gente
+    hash_t *visited_pages = hash_crear(free);
+    abb_t *visitors = abb_crear(compare_ips, NULL);
 
     while ((read = getline(&line, &length, stdin)) > 0) {
         if (line[read - 1] == '\n') {
@@ -79,5 +104,7 @@ int start() {
         }
     }
     free(line);
+    hash_destruir(visited_pages);
+    abb_destruir(visitors);
     return 0;
 }

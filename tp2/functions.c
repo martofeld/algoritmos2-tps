@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <time.h>
 #include "functions.h"
-#include "tdas/hash.h"
-#include "tdas/heap.h"
-#include "tdas/abb.h"
-#include "tdas/lista.h"
 
 #define TIME_PERIOD 2.0
 #define TIME_FORMAT "%FT%T%z"
@@ -19,11 +15,10 @@ time_t iso8601_to_time(const char* iso8601) {
     return mktime(&bktime);
 }
 
-void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *dos) {
+int read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *dos) {
     FILE *file = fopen(file_path, "r");
     if (!file) {
-        fprintf(stdout, "No se encontro el archivo");
-        return;
+        return -1;
     }
     char *line = NULL;
     size_t length = 0;
@@ -63,6 +58,7 @@ void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *
     fprintf(stdout, "OK\n");
     free(line);
     fclose(file);
+    return 0;
 }
 
 
@@ -87,7 +83,6 @@ bool its_attack(const char *time1_str, const char *time2_str) {
 int find_attack(hash_t *dos) {
 
     hash_iter_t *iter_hash = hash_iter_crear(dos);
-    fprintf(stdout, "OK\n");
 
     while (!hash_iter_al_final(iter_hash)) {
 
@@ -118,6 +113,7 @@ int find_attack(hash_t *dos) {
         lista_iter_destruir(iter_list_2);
     }
     hash_iter_destruir(iter_hash);
+    fprintf(stdout, "OK\n");
     return 0;
 }
 
@@ -153,13 +149,7 @@ visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) {
 }
 
 int compare_visits(const visit_t *visit1, const visit_t *visit2) {
-    if (visit1->value == visit2->value) {
-        return 0;
-    }
-    if (visit1->value < visit2->value) {
-        return -1;
-    }
-    return 1;
+    return visit1->value < visit2->value;
 }
 
 int compare_visits_wrapper(const void *visit1, const void *visit2) {
@@ -180,7 +170,7 @@ void print_most_visited(heap_t *n_visited, int n) {
         visit_t *aux = array[j];
         const char *ip = aux->key;
         size_t value = aux->value;
-        fprintf(stdout, "\t%s %zu\n", ip, value);
+        fprintf(stdout, "\t%s - %zu\n", ip, value);
     }
 
     fprintf(stdout, "%s\n", "OK");
@@ -215,11 +205,12 @@ void most_visited(int n, const hash_t *visited) {
 }
 
 bool visit(const char* ip){
-    printf("%s\n", ip);
+    fprintf(stdout, "\t%s\n", ip);
     return true;
 }
 
 void show_visitors(abb_t *visitors, char *since, char *until) {
+    fprintf(stdout, "Visitantes:\n");
     abb_iter_desde_hasta(visitors, visit, since, until);
 }
 //Destruir todos los iteradores
