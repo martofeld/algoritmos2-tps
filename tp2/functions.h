@@ -1,13 +1,16 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-#include "tdas/hash.h"
-#include "tdas/heap.h"
-#include "tdas/abb.h"
+#include "hash.h"
+#include "heap.h"
+#include "abb.h"
+#include "lista.h"
 #include "strutil.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+typedef struct visit visit_t;
 
 void most_visited(int n, const hash_t *visited);
 

@@ -1,19 +1,20 @@
 //
-// Created by Martin Feldsztejn on 11/6/17.
+// Created by Martin Feldsztejn on 11/6/17. lol
 //
 #define _POSIX_C_SOURCE 200809L
-
-#include "tdas/hash.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "strutil.h"
-#include "functions.h"
-
 #define NEW_FILE "agregar_archivo"
 #define VISITORS "ver_visitantes"
 #define MOST_VISITED "ver_mas_visitados"
 #define COMMAND_ERROR "Error en comando %s"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "functions.h"
+#include "strutil.h"
+#include "hash.h"
+#include "heap.h"
+#include "abb.h"
+#include "lista.h"
 
 void print_command_error(char *command) {
     fprintf(stderr, COMMAND_ERROR, command);

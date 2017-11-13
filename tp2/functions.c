@@ -1,14 +1,20 @@
 #define _XOPEN_SOURCE
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 #include "functions.h"
+#include "tdas/hash.h"
+#include "tdas/heap.h"
+#include "tdas/abb.h"
 #include "tdas/lista.h"
 
-#define TIME_PERIOD 2
+#define TIME_PERIOD 2.0
 #define TIME_FORMAT "%FT%T%z"
 
-time_t iso8601_to_time(const char *iso8601) {
-    struct tm bktime = {0};
+time_t iso8601_to_time(const char* iso8601) {
+    struct tm bktime = { 0 };
     strptime(iso8601, TIME_FORMAT, &bktime);
     return mktime(&bktime);
 }
@@ -58,19 +64,27 @@ void read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *
     fclose(file);
 }
 
-bool its_attack(char *time1_str, char *time2_str) {
+
+bool its_attack(const char *time1_str, const char *time2_str) {
     time_t time1 = iso8601_to_time(time1_str);
     time_t time2 = iso8601_to_time(time2_str);
     double time_gap = difftime(time2, time1);
-    if (time_gap >= TIME_PERIOD) {
+    if (time_gap <= TIME_PERIOD) {
         return true;
     }
     return false;
 }
 
+/*bool its_attack_wrapper(char *time1_str, char *time2_str) {
+    const char* time1 = time1_str;
+    const char* time2 = time2_str;
+    return its_attack(time1, time2);
+}*/
+
 int find_attack(hash_t *dos) {
 
     hash_iter_t *iter_hash = hash_iter_crear(dos);
+    fprintf(stdout, "OK\n");
 
     while (!hash_iter_al_final(iter_hash)) {
 
@@ -89,6 +103,7 @@ int find_attack(hash_t *dos) {
             char *time2 = lista_iter_ver_actual(iter_list_2);
             if (its_attack(time1, time2)) {
                 fprintf(stdout, "\tDoS: %s\n", key);
+                break;
             }
             lista_iter_avanzar(iter_list_1);
             lista_iter_avanzar(iter_list_2);
@@ -103,10 +118,10 @@ int find_attack(hash_t *dos) {
 }
 
 
-typedef struct visit {
+struct visit {
     const char *key;
     size_t value;
-} visit_t;
+};
 
 visit_t *new_visit(const char *key, size_t *value) {
     visit_t *visit = malloc(sizeof(visit_t));
