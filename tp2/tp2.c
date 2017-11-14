@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "functions.h"
+#include "visit.h"
 
 void print_command_error(char *command) {
     fprintf(stderr, COMMAND_ERROR, command);
@@ -39,6 +40,7 @@ int compare_ips(const char* ip1, const char* ip2){
     return returnValue;
 }
 
+// -------------- DoS DETECTION ----------
 int compare_ips_wrapper(const void* ip1, const void* ip2){
     return compare_ips(ip1, ip2) * -1;
 }
@@ -58,6 +60,32 @@ void print_attacks(heap_t* attacks){
         free(key); // Free the memory since we copied the key
     }
 }
+// -------------- END DoS ----------------
+
+// -------------- MOST VISITED --------------
+
+
+int compare_visits_wrapper(const void *visit1, const void *visit2) {
+    return compare_visits(visit1, visit2);
+}
+
+//la funcion de comparacion del heap se fija por cantidad de visitas
+void print_most_visited(heap_t *n_visited, int n) {
+    fprintf(stdout, "Sitios más visitados:\n");
+
+    visit_t *array[n];
+
+    for (int i = 0; i < n; i++) {
+        array[i] = heap_desencolar(n_visited);
+    }
+
+    for (int j = n - 1; j >= 0; j--) {
+        visit_t *visit = array[j];
+        fprintf(stdout, "\t%s - %zu\n", get_ip(visit), get_views(visit));
+        destroy_visit(visit);
+    }
+}
+// ----------- END MOST VISITED ----------
 
 int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     char **splited = split(line, ' ');
@@ -90,7 +118,11 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
         if (length != 3) {
             print_command_error(MOST_VISITED);
         } else {
-            most_visited(atoi(splited[1]), visited_pages);
+            heap_t* heap = heap_crear(compare_visits_wrapper);
+            int n = atoi(splited[1]);
+            find_most_visited(n, visited_pages, heap);
+            print_most_visited(heap, n);
+            heap_destruir(heap, NULL); // Heap should be empty by now
         }
     } else {
         print_command_error(splited[0]);

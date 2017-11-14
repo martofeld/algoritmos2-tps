@@ -10,9 +10,7 @@
 #include <string.h>
 #include <time.h>
 
-typedef struct visit visit_t;
-
-void most_visited(int n, const hash_t *visited);
+void find_most_visited(int n, const hash_t *visited, heap_t *result);
 
 int find_attack(hash_t *possible_dos, heap_t* attacks);
 

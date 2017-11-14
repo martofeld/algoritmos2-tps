@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "functions.h"
+#include "visit.h"
 
 #define TIME_PERIOD 2.0
 #define TIME_FORMAT "%FT%T%z"
@@ -112,90 +113,28 @@ int find_attack(hash_t *possible_dos, heap_t* attacks) {
     return 0;
 }
 
+void find_most_visited(int n, const hash_t *visited, heap_t *result) {
 
-struct visit {
-    const char *key;
-    size_t value;
-};
-
-visit_t *new_visit(const char *key, size_t *value) {
-    visit_t *visit = malloc(sizeof(visit_t));
-    if (!visit) {
-        return NULL;
-    }
-    const char *key_aux = strcopy(key);
-    if (!key_aux) {
-        free(visit);
-        return NULL;
-    }
-    visit->key = key_aux;
-    visit->value = *value;
-    return visit;
-}
-
-visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) {
-    const char *key = hash_iter_ver_actual(iter);
-    size_t *value = hash_obtener(hash, key);
-    visit_t *visit = new_visit(key, value);
-    if (!visit) {
-        return NULL;
-    }
-    return visit;
-}
-
-int compare_visits(const visit_t *visit1, const visit_t *visit2) {
-    return visit1->value < visit2->value;
-}
-
-int compare_visits_wrapper(const void *visit1, const void *visit2) {
-    return compare_visits(visit1, visit2);
-}
-
-//la funcion de comparacion del heap se fija por cantidad de visitas
-void print_most_visited(heap_t *n_visited, int n) {
-    fprintf(stdout, "%s\n", "Sitios más visitados:");
-
-    visit_t *array[n];
-
-    for (int i = 0; i < n; i++) {
-        array[i] = heap_desencolar(n_visited);
-    }
-
-    for (int j = n; j > 0; j--) {
-        visit_t *aux = array[j];
-        const char *ip = aux->key;
-        size_t value = aux->value;
-        fprintf(stdout, "\t%s - %zu\n", ip, value);
-    }
-
-    fprintf(stdout, "%s\n", "OK");
-
-}
-
-void most_visited(int n, const hash_t *visited) {
-
-    heap_t *n_visited = heap_crear(compare_visits_wrapper);
     hash_iter_t *hash_iter = hash_iter_crear(visited);
 
     for (int i = 0; i < n; i++) {
         visit_t *visit = add_visit(visited, hash_iter);//verificar que se crea
-        heap_encolar(n_visited, visit);
+        heap_encolar(result, visit);
         hash_iter_avanzar(hash_iter);
     }
 
     while (!hash_iter_al_final(hash_iter)) {
         const char *key = hash_iter_ver_actual(hash_iter);
         size_t *value = hash_obtener(visited, key);
-        visit_t *top = heap_ver_tope(n_visited);
-        if (top->value < *value) {
-            heap_desencolar(n_visited);
+        visit_t *top = heap_ver_tope(result);
+        if (is_less_visited(top, *value)) {
+            heap_desencolar(result);
             visit_t *visit = new_visit(key, value);//verificar que se crea
-            heap_encolar(n_visited, visit);
-            hash_iter_avanzar(hash_iter);
+            heap_encolar(result, visit);
         }
+        hash_iter_avanzar(hash_iter);
     }
 
-    print_most_visited(n_visited, n);
     hash_iter_destruir(hash_iter);
 }
 
