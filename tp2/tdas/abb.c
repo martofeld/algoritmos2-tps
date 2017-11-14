@@ -6,7 +6,6 @@
 #include <string.h>
 #include "abb.h"
 #include "pila.h"
-#include "lista.h"
 
 typedef struct nodo nodo_t;
 struct nodo {
@@ -283,37 +282,65 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
     pila_destruir(pila);
 }
 
-bool in_range(abb_t* abb, const char* clave, const char* desde, const char* hasta){
+bool in_range(abb_t *abb, const char *clave, const char *desde, const char *hasta) {
     return comparar_clave(abb, clave, desde) >= 0 && comparar_clave(abb, clave, hasta) <= 0;
 }
 
-void apilar_izquierdos_condicional(pila_t* pila, abb_t* abb, nodo_t* inicio, char* desde, char* hasta){
+void apilar_izquierdos_condicional(pila_t *pila, abb_t *abb, nodo_t *inicio, char *desde, char *hasta) {
     nodo_t *actual = inicio;
     while (actual) {
-        if(in_range(abb, actual->clave, desde, hasta)) {
+        if (in_range(abb, actual->clave, desde, hasta)) {
             pila_apilar(pila, actual);
             actual = actual->izq;
-        } else if (actual->der && in_range(abb, actual->der->clave, desde, hasta)){
-            pila_apilar(pila, actual->der);
-            actual = actual->der;
         } else {
-            if(comparar_clave(abb, actual->clave, desde) < 0)
-                actual = actual->der;
-            else
-                actual = actual->izq;
+            if (comparar_clave(abb, actual->clave, desde) < 0) {
+                // La clave actual es mas chica me fijo a mi derecha
+                if (actual->der && in_range(abb, actual->der->clave, desde, hasta)) {
+                    actual = actual->der;
+                }
+            } else {
+                if (actual->izq && in_range(abb, actual->izq->clave, desde, hasta)) {
+                    actual = actual->izq;
+                }
+            }
         }
     }
 }
 
-void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*, lista_t*), char* desde, char* hasta, lista_t* extra){
-    pila_t* pila = pila_crear();
+void bleh(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, lista_t *extra, nodo_t *nodo) {
+    if (!nodo) {
+        return;
+    }
+    if (in_range(abb, nodo->clave, desde, hasta)) {
+        visitar(nodo->clave, extra);
+        bleh(abb, visitar, desde, hasta, extra, nodo->izq);
+    } else if (nodo->izq) {
+        if (in_range(abb, nodo->izq->clave, desde, hasta)) {
+            bleh(abb, visitar, desde, hasta, extra, nodo->izq);
+        } else if (nodo->izq->der && in_range(abb, nodo->izq->der->clave, desde, hasta)) {
+            bleh(abb, visitar, desde, hasta, extra, nodo->izq->der);
+        }
+    } else if (nodo->der) {
+        if (in_range(abb, nodo->der->clave, desde, hasta)) {
+            bleh(abb, visitar, desde, hasta, extra, nodo->der);
+        } else if (nodo->der->izq && in_range(abb, nodo->der->izq->clave, desde, hasta)) {
+            bleh(abb, visitar, desde, hasta, extra, nodo->der->izq);
+        }
+    } else {
+        return;
+    }
+}
+
+void abb_iter_desde_hasta(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, lista_t *extra) {
+    pila_t *pila = pila_crear();
     if (!pila) return;
 
     if (abb_cantidad(abb) == 0) return;
 
-    nodo_t* primero = abb->raiz;
-    while (primero && !in_range(abb, primero->clave, desde, hasta)){ // esto va a ir hasta que encuentre el primero en el rango
-        if (comparar_clave(abb, primero->clave, desde) < 0){ // Si la clave del primero es menor a desde
+    nodo_t *primero = abb->raiz;
+    while (primero &&
+           !in_range(abb, primero->clave, desde, hasta)) { // esto va a ir hasta que encuentre el primero en el rango
+        if (comparar_clave(abb, primero->clave, desde) < 0) { // Si la clave del primero es menor a desde
             primero = primero->der;
         } else {
             primero = primero->izq; // Me fui del rango hacia la derecha

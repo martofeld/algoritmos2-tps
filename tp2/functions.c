@@ -54,7 +54,7 @@ int read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *d
         }
 
         abb_guardar(visitors, ip, NULL);
-        free_strv(splited);// mal
+        free_strv(splited);
     }
     free(line);
     fclose(file);
@@ -84,7 +84,7 @@ int find_attack(hash_t *possible_dos, heap_t* attacks) {
         lista_iter_t *iter_list_1 = lista_iter_crear(value);
         lista_iter_t *iter_list_2 = lista_iter_crear(value);
 
-        for (int i = 0; i < 5 && !lista_iter_al_final(iter_list_2); i++) {
+        for (int i = 0; i < 4 && !lista_iter_al_final(iter_list_2); i++) {
             lista_iter_avanzar(iter_list_2);
         }
 
@@ -111,7 +111,7 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
 
     hash_iter_t *hash_iter = hash_iter_crear(visited);
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n && !hash_iter_al_final(hash_iter); i++) {
         visit_t *visit = add_visit(visited, hash_iter);
         if (visit) {
             heap_encolar(result, visit);
@@ -141,7 +141,7 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
     hash_iter_destruir(hash_iter);
 }
 
-bool visit(const char* ip, lista_t* results){
+bool visit(char* ip, lista_t* results){
     lista_insertar_ultimo(results, ip);
     return true;
 }

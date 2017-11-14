@@ -4,8 +4,8 @@
 #include "lista.h"
 
 // --------- NODO ---------
-typedef struct nodo nodo_lista_t;
-struct nodo {
+typedef struct nodo_lista nodo_lista_t;
+struct nodo_lista {
     void *dato;
     nodo_lista_t *proximo;
 };

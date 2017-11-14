@@ -17,9 +17,12 @@ void print_command_error(char *command) {
     fprintf(stderr, COMMAND_ERROR, command);
 }
 
+/*
+ * Counts the length of an array without the NULL value
+ */
 size_t count_length(char **splited) {
-    size_t length = 1;
-    while (splited[length - 1]) {
+    size_t length = 0;
+    while (splited[length]) {
         length++; //Count params
     }
     return length;
@@ -29,13 +32,9 @@ size_t count_length(char **splited) {
 int compare_ips(const char* ip1, const char* ip2){
     char** splited1 = split(ip1, '.');
     char** splited2 = split(ip2, '.');
-    size_t length1 = count_length(splited1) - 1;
-    size_t length2 = count_length(splited2) - 1;
     int returnValue = 0;
-    int i = 0;
-    while(returnValue == 0 && i < length1 && i < length2){
+    for (int i = 0; i < 4 && returnValue == 0; i++){
         returnValue = atoi(splited1[i]) - atoi(splited2[i]);
-        i++;
     }
     free_strv(splited1);
     free_strv(splited2);
@@ -81,8 +80,10 @@ void print_most_visited(heap_t *n_visited, int n) {
 
     for (int j = n - 1; j >= 0; j--) {
         visit_t *visit = array[j];
-        fprintf(stdout, "\t%s - %zu\n", get_ip(visit), get_views(visit));
-        destroy_visit(visit);
+        if(visit) {
+            fprintf(stdout, "\t%s - %zu\n", get_ip(visit), get_views(visit));
+            destroy_visit(visit);
+        }
     }
 }
 // ----------- END MOST VISITED ----------
@@ -102,7 +103,7 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
 
     int res_code = 0;
     if (strcmp(splited[0], NEW_FILE) == 0) {
-        if (length != 3) {
+        if (length != 2) {
             print_command_error(NEW_FILE);
         } else {
             hash_t *dos_hash = hash_crear(destroy_list_wrapper);
@@ -118,7 +119,8 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
             hash_destruir(dos_hash);
         }
     } else if (strcmp(splited[0], VISITORS) == 0) {
-        if (length != 4) {
+        if (length != 3) {
+            res_code = -1;
             print_command_error(VISITORS);
         } else {
             lista_t* result = lista_crear();
@@ -127,7 +129,8 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
             lista_destruir(result, NULL);
         }
     } else if (strcmp(splited[0], MOST_VISITED) == 0) {
-        if (length != 3) {
+        if (length != 2) {
+            res_code = -1;
             print_command_error(MOST_VISITED);
         } else {
             heap_t* heap = heap_crear(compare_visits_wrapper);
@@ -143,6 +146,7 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     if (res_code == 0){
         fprintf(stdout, "OK\n");
     }
+    free_strv(splited);
     return res_code;
 }
 
