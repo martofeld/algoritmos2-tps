@@ -46,7 +46,7 @@ int read_file(const char *file_path, hash_t *visited, abb_t *visitors, hash_t *d
         char* time_aux= strcopy(time);
         if (hash_pertenece(dos, ip)) {
             lista_t *times = hash_obtener(dos, ip);
-            lista_insertar_ultimo(times, time_aux);//copiar la clave
+            lista_insertar_ultimo(times, time_aux);
         } else {
             lista_t *times = lista_crear();
             lista_insertar_ultimo(times, time_aux);
@@ -71,12 +71,6 @@ bool its_attack(const char *time1_str, const char *time2_str) {
     }
     return false;
 }
-
-/*bool its_attack_wrapper(char *time1_str, char *time2_str) {
-    const char* time1 = time1_str;
-    const char* time2 = time2_str;
-    return its_attack(time1, time2);
-}*/
 
 int find_attack(hash_t *possible_dos, heap_t* attacks) {
 
@@ -118,9 +112,13 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
     hash_iter_t *hash_iter = hash_iter_crear(visited);
 
     for (int i = 0; i < n; i++) {
-        visit_t *visit = add_visit(visited, hash_iter);//verificar que se crea
-        heap_encolar(result, visit);
-        hash_iter_avanzar(hash_iter);
+        visit_t *visit = add_visit(visited, hash_iter);
+        if (visit) {
+            heap_encolar(result, visit);
+            hash_iter_avanzar(hash_iter);
+        } else {
+            i--; // Find another one
+        }
     }
 
     while (!hash_iter_al_final(hash_iter)) {
@@ -129,9 +127,13 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
         visit_t *top = heap_ver_tope(result);
         if (is_less_visited(top, *value)) {
             visit_t* old = heap_desencolar(result);
-            destroy_visit(old);
-            visit_t *visit = new_visit(key, value);//verificar que se crea
-            heap_encolar(result, visit);
+            visit_t *visit = new_visit(key, value);
+            if(visit){
+                destroy_visit(old);
+                heap_encolar(result, visit);
+            } else {
+                heap_encolar(result, old);
+            }
         }
         hash_iter_avanzar(hash_iter);
     }
