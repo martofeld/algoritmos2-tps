@@ -6,6 +6,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "lista.h"
 
 typedef struct abb abb_t;
 
@@ -29,7 +30,7 @@ void abb_destruir(abb_t *arbol);
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
 
-void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*), char* desde, char* hasta);
+void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*, lista_t*), char* desde, char* hasta, lista_t* extra);
 
 // --------- ITERADOR --------
 typedef struct abb_iter abb_iter_t;

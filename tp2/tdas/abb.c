@@ -6,6 +6,7 @@
 #include <string.h>
 #include "abb.h"
 #include "pila.h"
+#include "lista.h"
 
 typedef struct nodo nodo_t;
 struct nodo {
@@ -304,7 +305,7 @@ void apilar_izquierdos_condicional(pila_t* pila, abb_t* abb, nodo_t* inicio, cha
     }
 }
 
-void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*), char* desde, char* hasta){
+void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*, lista_t*), char* desde, char* hasta, lista_t* extra){
     pila_t* pila = pila_crear();
     if (!pila) return;
 
@@ -322,7 +323,7 @@ void abb_iter_desde_hasta(abb_t* abb, bool visitar(const char*), char* desde, ch
     while (!pila_esta_vacia(pila)) {
         nodo_t *actual = pila_desapilar(pila);
         apilar_izquierdos_condicional(pila, abb, actual->der, desde, hasta);
-        if (!visitar(actual->clave)) {
+        if (!visitar(actual->clave, extra)) {
             break;
         }
     }

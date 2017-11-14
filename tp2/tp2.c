@@ -87,6 +87,15 @@ void print_most_visited(heap_t *n_visited, int n) {
 }
 // ----------- END MOST VISITED ----------
 
+// ----------- VISITORS -----------
+void print_visitors(lista_t* results){
+    fprintf(stdout, "Visitantes:\n");
+    while(!lista_esta_vacia(results)){
+        fprintf(stdout, "\t%s\n", (char*)lista_borrar_primero(results));
+    }
+}
+// ---------- END VISITORS ---------
+
 int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
     char **splited = split(line, ' ');
     size_t length = count_length(splited);
@@ -112,7 +121,10 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
         if (length != 4) {
             print_command_error(VISITORS);
         } else {
-            show_visitors(visitors, splited[1], splited[2]);
+            lista_t* result = lista_crear();
+            find_visitors(visitors, splited[1], splited[2], result);
+            print_visitors(result);
+            lista_destruir(result, NULL);
         }
     } else if (strcmp(splited[0], MOST_VISITED) == 0) {
         if (length != 3) {
