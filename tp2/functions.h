@@ -14,7 +14,7 @@ typedef struct visit visit_t;
 
 void most_visited(int n, const hash_t *visited);
 
-int find_attack(hash_t *dos);
+int find_attack(hash_t *possible_dos, heap_t* attacks);
 
 int read_file(const char *file_path, hash_t *visited, abb_t *abb, hash_t *dos);
 
