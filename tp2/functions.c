@@ -128,7 +128,8 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
         size_t *value = hash_obtener(visited, key);
         visit_t *top = heap_ver_tope(result);
         if (is_less_visited(top, *value)) {
-            heap_desencolar(result);
+            visit_t* old = heap_desencolar(result);
+            destroy_visit(old);
             visit_t *visit = new_visit(key, value);//verificar que se crea
             heap_encolar(result, visit);
         }

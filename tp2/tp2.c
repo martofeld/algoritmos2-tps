@@ -37,6 +37,8 @@ int compare_ips(const char* ip1, const char* ip2){
         returnValue = atoi(splited1[i]) - atoi(splited2[i]);
         i++;
     }
+    free_strv(splited1);
+    free_strv(splited2);
     return returnValue;
 }
 
@@ -63,8 +65,6 @@ void print_attacks(heap_t* attacks){
 // -------------- END DoS ----------------
 
 // -------------- MOST VISITED --------------
-
-
 int compare_visits_wrapper(const void *visit1, const void *visit2) {
     return compare_visits(visit1, visit2);
 }
