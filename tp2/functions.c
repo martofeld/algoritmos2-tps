@@ -108,7 +108,7 @@ int find_attack(hash_t *possible_dos, heap_t* attacks) {
     return 0;
 }
 
-visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) { //Mal nombre de funcion
+visit_t *get_visit(const hash_t *hash, hash_iter_t *iter) {
     const char *key = hash_iter_ver_actual(iter);
     size_t *value = hash_obtener(hash, key);
     visit_t *visit = new_visit(key, value);
@@ -123,7 +123,7 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
     hash_iter_t *iter_visited = hash_iter_crear(visited);
 
     for (int i = 0; i < n && !hash_iter_al_final(iter_visited); i++) {
-        visit_t *visit = add_visit(visited, iter_visited);
+        visit_t *visit = get_visit(visited, iter_visited);
         if (visit) {
             heap_encolar(result, visit);
             hash_iter_avanzar(iter_visited);
