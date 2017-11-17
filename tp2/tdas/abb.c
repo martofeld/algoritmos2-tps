@@ -307,31 +307,7 @@ void apilar_izquierdos_condicional(pila_t *pila, abb_t *abb, nodo_t *inicio, cha
     }
 }
 
-void bleh(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, lista_t *extra, nodo_t *nodo) {
-    if (!nodo) {
-        return;
-    }
-    if (in_range(abb, nodo->clave, desde, hasta)) {
-        visitar(nodo->clave, extra);
-        bleh(abb, visitar, desde, hasta, extra, nodo->izq);
-    } else if (nodo->izq) {
-        if (in_range(abb, nodo->izq->clave, desde, hasta)) {
-            bleh(abb, visitar, desde, hasta, extra, nodo->izq);
-        } else if (nodo->izq->der && in_range(abb, nodo->izq->der->clave, desde, hasta)) {
-            bleh(abb, visitar, desde, hasta, extra, nodo->izq->der);
-        }
-    } else if (nodo->der) {
-        if (in_range(abb, nodo->der->clave, desde, hasta)) {
-            bleh(abb, visitar, desde, hasta, extra, nodo->der);
-        } else if (nodo->der->izq && in_range(abb, nodo->der->izq->clave, desde, hasta)) {
-            bleh(abb, visitar, desde, hasta, extra, nodo->der->izq);
-        }
-    } else {
-        return;
-    }
-}
-
-void abb_iter_desde_hasta(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, lista_t *extra) {
+void abb_in_order_desde_hasta(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, void *extra) {
     pila_t *pila = pila_crear();
     if (!pila) return;
 

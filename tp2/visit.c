@@ -26,16 +26,6 @@ visit_t *new_visit(const char *key, size_t *value) {
     return visit;
 }
 
-visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) {
-    const char *key = hash_iter_ver_actual(iter);
-    size_t *value = hash_obtener(hash, key);
-    visit_t *visit = new_visit(key, value);
-    if (!visit) {
-        return NULL;
-    }
-    return visit;
-}
-
 int compare_visits(const visit_t *visit1, const visit_t *visit2) {
     return (int) (visit2->value - visit1->value);
 }

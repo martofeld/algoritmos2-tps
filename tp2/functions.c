@@ -7,6 +7,7 @@
 #include "functions.h"
 #include "visit.h"
 
+#define MAX_REQUESTS 4
 #define TIME_PERIOD 2.0
 #define TIME_FORMAT "%FT%T%z"
 
@@ -84,7 +85,7 @@ int find_attack(hash_t *possible_dos, heap_t* attacks) {
         lista_iter_t *iter_list_1 = lista_iter_crear(value);
         lista_iter_t *iter_list_2 = lista_iter_crear(value);
 
-        for (int i = 0; i < 4 && !lista_iter_al_final(iter_list_2); i++) {
+        for (int i = 0; i < MAX_REQUESTS  && !lista_iter_al_final(iter_list_2); i++) {
             lista_iter_avanzar(iter_list_2);
         }
 
@@ -107,22 +108,32 @@ int find_attack(hash_t *possible_dos, heap_t* attacks) {
     return 0;
 }
 
+visit_t *add_visit(const hash_t *hash, hash_iter_t *iter) { //Mal nombre de funcion
+    const char *key = hash_iter_ver_actual(iter);
+    size_t *value = hash_obtener(hash, key);
+    visit_t *visit = new_visit(key, value);
+    if (!visit) {
+        return NULL;
+    }
+    return visit;
+}
+
 void find_most_visited(int n, const hash_t *visited, heap_t *result) {
 
-    hash_iter_t *hash_iter = hash_iter_crear(visited);
+    hash_iter_t *iter_visited = hash_iter_crear(visited);
 
-    for (int i = 0; i < n && !hash_iter_al_final(hash_iter); i++) {
-        visit_t *visit = add_visit(visited, hash_iter);
+    for (int i = 0; i < n && !hash_iter_al_final(iter_visited); i++) {
+        visit_t *visit = add_visit(visited, iter_visited);
         if (visit) {
             heap_encolar(result, visit);
-            hash_iter_avanzar(hash_iter);
+            hash_iter_avanzar(iter_visited);
         } else {
             i--; // Find another one
         }
     }
 
-    while (!hash_iter_al_final(hash_iter)) {
-        const char *key = hash_iter_ver_actual(hash_iter);
+    while (!hash_iter_al_final(iter_visited)) {
+        const char *key = hash_iter_ver_actual(iter_visited);
         size_t *value = hash_obtener(visited, key);
         visit_t *top = heap_ver_tope(result);
         if (is_less_visited(top, *value)) {
@@ -135,10 +146,10 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
                 heap_encolar(result, old);
             }
         }
-        hash_iter_avanzar(hash_iter);
+        hash_iter_avanzar(iter_visited);
     }
 
-    hash_iter_destruir(hash_iter);
+    hash_iter_destruir(iter_visited);
 }
 
 bool visit(char* ip, lista_t* results){
@@ -147,6 +158,6 @@ bool visit(char* ip, lista_t* results){
 }
 
 void find_visitors(abb_t *visitors, char *since, char *until, lista_t *results) {
-    abb_iter_desde_hasta(visitors, visit, since, until, results);
+    abb_in_order_desde_hasta(visitors, visit, since, until, results);
 }
 //Destruir todos los iteradores

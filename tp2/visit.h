@@ -11,7 +11,6 @@
 typedef struct visit visit_t;
 
 visit_t *new_visit(const char *key, size_t *value);
-visit_t *add_visit(const hash_t *hash, hash_iter_t *iter);
 int compare_visits(const visit_t *visit1, const visit_t *visit2);
 bool is_less_visited(visit_t* visit, size_t visits);
 const char* get_ip(visit_t *visit);

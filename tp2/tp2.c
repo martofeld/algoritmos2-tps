@@ -107,9 +107,20 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
             print_command_error(NEW_FILE);
         } else {
             hash_t *dos_hash = hash_crear(destroy_list_wrapper);
+                if (!dos_hash) {
+                    free_strv(splited);
+                    print_command_error(NEW_FILE);
+                    return 1;
+                }
             res_code = read_file(splited[1], visited_pages, visitors, dos_hash);
             if (res_code == 0) {
                 heap_t* heap = heap_crear(compare_ips_wrapper);
+                if (!heap) {
+                    free_strv(splited);
+                    hash_destruir(dos_hash);
+                    print_command_error(NEW_FILE);
+                    return 1;
+                }
                 res_code = find_attack(dos_hash, heap);
                 print_attacks(heap);
                 heap_destruir(heap, NULL); // Null since the heap is empty and keys were freed
@@ -124,6 +135,11 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
             print_command_error(VISITORS);
         } else {
             lista_t* result = lista_crear();
+            if (!result) {
+                free_strv(splited);
+                print_command_error(VISITORS);
+                return 1;
+            }
             find_visitors(visitors, splited[1], splited[2], result);
             print_visitors(result);
             lista_destruir(result, NULL);
@@ -134,6 +150,11 @@ int handle_input(char *line, hash_t* visited_pages, abb_t* visitors) {
             print_command_error(MOST_VISITED);
         } else {
             heap_t* heap = heap_crear(compare_visits_wrapper);
+            if (!heap) {
+                free_strv(splited);
+                print_command_error(MOST_VISITED);
+                return 1;
+            }
             int n = atoi(splited[1]);
             find_most_visited(n, visited_pages, heap);
             print_most_visited(heap, n);
