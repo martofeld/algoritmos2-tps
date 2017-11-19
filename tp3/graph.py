@@ -27,6 +27,10 @@ class Graph:
         """"""
         return self.vertexes.keys()
 
+    def get_edges(self):
+        """"""
+        # TODO
+
     def get_vertexes_count(self):
         """Returns the amount of vertexes in the graph"""
         return len(self.vertexes.keys())
@@ -38,6 +42,10 @@ class Graph:
     def get_information(self, vertex1, vertex2):
         """Returns the extra information from the edge of two vertexes"""
         return self.vertexes[vertex1][vertex2]
+
+    def are_connected(self, vertex1, vertex2):
+        """"""
+        return vertex2 in self.vertexes[vertex1]
 
     def __contains__(self, vertex):
         """Checks if a vertex is in the graph"""
