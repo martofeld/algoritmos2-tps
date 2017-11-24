@@ -152,12 +152,16 @@ void find_most_visited(int n, const hash_t *visited, heap_t *result) {
     hash_iter_destruir(iter_visited);
 }
 
-bool visit(char* ip, lista_t* results){
+bool visit(char* ip, lista_t* results) {
     lista_insertar_ultimo(results, ip);
     return true;
 }
 
+bool visit_wrapper(char* ip, void* results){
+    return visit(ip, results);
+}
+
 void find_visitors(abb_t *visitors, char *since, char *until, lista_t *results) {
-    abb_in_order_desde_hasta(visitors, visit, since, until, results);
+    abb_in_order_desde_hasta(visitors, visit_wrapper, since, until, results);
 }
 //Destruir todos los iteradores

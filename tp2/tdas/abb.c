@@ -307,7 +307,7 @@ void apilar_izquierdos_condicional(pila_t *pila, abb_t *abb, nodo_t *inicio, cha
     }
 }
 
-void abb_in_order_desde_hasta(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, void *extra) {
+void abb_in_order_desde_hasta(abb_t *abb, bool visitar(char *, void *), char *desde, char *hasta, void *extra) {
     pila_t *pila = pila_crear();
     if (!pila) return;
 
