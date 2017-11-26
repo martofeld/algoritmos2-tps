@@ -120,7 +120,7 @@ def n_steps(graph, vertex, n):
     lista=[]
     while not process.esta_vacia():
         v= process.desencolar()
-        for w in graph.adyacentes(vertex):
+        for w in graph.get_neighbours(v):
             if w not in visited:
                 visited[w]=True
                 level[w]=level[v]+1
@@ -145,7 +145,7 @@ def path(graph, start, end):
     process.encolar(start)
     while not process.esta_vacia():
         v=process.desencolar()
-        for w in v.adyacentes():
+        for w in graph.get_neighbours(v)::
             visited[w]=True
             father[w]=v
             process.encolar(w)
