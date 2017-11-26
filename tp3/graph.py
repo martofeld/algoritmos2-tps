@@ -97,6 +97,9 @@ class Graph:
         """"""
         return vertex2 in self.vertexes[vertex1]
 
+    def get_edges_of_vertex(self, vertex):
+        return [edge for edge in self.edges if edge.has_vertex(vertex)]
+
     def __contains__(self, vertex):
         """Checks if a vertex is in the graph"""
         return vertex in self.vertexes

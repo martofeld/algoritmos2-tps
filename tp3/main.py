@@ -1,4 +1,5 @@
 import sys
+import graph_functions
 
 from graph import Graph
 
@@ -11,6 +12,7 @@ ACTORS_LIKE = "similares_a_KB"
 POPULARITY_VS = "popularidad_contra_KB"
 MOVIES_COUNT = "cantidad_peliculas"
 ACTORS_COUNT = "cantidad_actores"
+KB = "Bacon Kevin"
 
 
 def main():
@@ -18,8 +20,8 @@ def main():
         print("Wrong params")
         exit(1)
 
-    create_graph(sys.argv[1])
-    run_command()
+    graph = create_graph(sys.argv[1])
+    run_command(graph)
 
 
 def create_graph(file):
@@ -46,56 +48,61 @@ def create_graph(file):
             for j in range(0, len(actors)):
                 if j != i:
                     graph.add_edge(actors[i], actors[j], movie)
+    return graph
 
-def run_command():
+
+def run_command(graph):
     for line in sys.stdin:
         args = line.strip().split(' ')
-        FUNCTIONS[args[0]](*args[1:])  # Black magic
+        FUNCTIONS[args[0]](graph, *args[1:])  # Black magic
 
 
-def path_to_kb(actor):
+def path_to_kb(graph, actor):
+    """"""
+    graph_functions.path(graph, KB, actor)
+
+
+def bacon_number(graph, actor):
     """"""
     # TODO
 
 
-def bacon_number():
+def bacon_number_gt_6(graph):
     """"""
     # TODO
 
 
-def bacon_number_gt_6():
+def bacon_number_inf(graph):
     """"""
     # TODO
 
 
-def bacon_number_inf():
+def average_kbn(graph):
     """"""
     # TODO
 
 
-def average_kbn():
+def actors_like(graph, max):
     """"""
     # TODO
 
 
-def actors_like():
+def popularity_vs(graph, actor):
     """"""
     # TODO
 
 
-def popularity_vs():
+def movies_count(graph):
     """"""
-    # TODO
+    edges = graph.get_edges()
+    count = len(edges)
+    print("El dataset contiene", count, "peliculas")
 
 
-def movies_count():
+def actors_count(graph):
     """"""
-    # TODO
-
-
-def actors_count():
-    """"""
-    # TODO
+    count = graph.get_vertexes_count()
+    print("El dataset contiene", count, "actores")
 
 
 FUNCTIONS = {

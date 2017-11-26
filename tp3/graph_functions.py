@@ -30,7 +30,16 @@ def actors_at_distance(graph, actor, distance):
 
 def popularity(graph, actor):
     """"""
-    # TODO
+    actors = 0
+    neighbours = graph.get_neighbours(actor)
+    actors += len(neighbours)
+    for neighbour in neighbours:
+        actors += len(graph.get_neighbours(neighbour)) - 1 # This way we remove myself
+    movies = 0
+    for edge in graph.get_edges_of_vertex(actor):
+        movies += len(edge.get_information())
+
+    return actors * movies
 
 
 def similar(graph, actor):
