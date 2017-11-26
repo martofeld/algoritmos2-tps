@@ -61,9 +61,9 @@ def run_command(graph):
 def path_to_kb(graph, actor):
     """"""
     path = graph_functions.path(graph, KB, actor)
-    print(path)
-
-
+    for step in path:
+        print("'%' actuo con '%' en '%'").format(step[0],step[1],step[2])
+    
 def bacon_number(graph, actor):
     """"""
     # TODO
