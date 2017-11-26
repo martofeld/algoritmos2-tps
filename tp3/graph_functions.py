@@ -103,3 +103,26 @@ def make_path(parents, start, end):
 
 def is_path(path, start, end):
     return path[0]==start and path[-1]==end
+
+def similares(graph, vertex, n): #to do nombre
+	if vertex not in graph:
+		return False
+	neighbours= graph.get_neighbours(vertex):
+	actors={}
+	for v in graph.get_vertex():
+		number=compare_neighbours(graph,v,neighbours)
+		actors[number]=v
+	list_actors=actors.keys().sort()
+	n_similars=[]
+	for i in range(n):
+		similar=actors[list_actors.pop()]
+		n_similars.append(similar)
+	return n_similars
+
+
+def compare_neighbours(graph, vertex, list_):
+	count=0
+	for w in graph.get_neighbours(vertex):
+		if w in list_:
+			count+=1
+	return count
