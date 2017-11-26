@@ -104,3 +104,72 @@ class Graph:
     def __iter__(self):
         """Returns an iterator for the graph"""
         return iter(self.vertexes)
+    
+   
+
+def n_steps(graph, vertex, n):
+    visited = {}
+    level = {}
+    if vertex not in graph:
+        return False
+    #obtener el vertice
+    level[vertex]=0
+    process= Cola()
+    encolar.process(vertex)
+    visited[vertex]=True 
+    lista=[]
+    while not process.esta_vacia():
+        v= process.desencolar()
+        for w in graph.adyacentes(vertex):
+            if w not in visited:
+                visited[w]=True
+                level[w]=level[v]+1
+                process.encolar(w)
+            if level[w]==n:
+                lista.append(w)
+    return lista
+
+def path(graph, start, end):
+    if start not in graph or end not in graph:
+        return []
+    path=[]
+    path.append(start)
+    if start==end:
+        return path
+    visited={}
+    father={}
+    #obtener start
+    father[start]= ne
+    visited[start]=True
+    process=Cola()
+    process.encolar(start)
+    while not process.esta_vacia():
+        v=process.desencolar()
+        for w in v.adyacentes():
+            visited[w]=True
+            father[w]=v
+            process.encolar(w)
+        if w==end:
+            break
+    return make_path(father,start,end)
+
+def make_path(father, start, end):
+    v=end
+    padre=father[v]
+    lista=[]
+    while v != start:
+        lista.insert(1,v)
+        v=padre
+        padre=father[v]
+
+def is_path(path, start, end):
+    return path[0]=start and path[-1]=end
+
+
+def actores_a_distancia(graph, actor, n):
+    lista= n_steps(graph,actor1,n)
+    lista.sort()
+    return lista
+
+def camino(graph,actor1, actor2):
+    return path(graph, actor1, actor2)
