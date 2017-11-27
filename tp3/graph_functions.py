@@ -42,7 +42,7 @@ def path(graph, start, end):
             if w==end:
                 found_end = True
                 break
-    return make_path(father,start,end)
+    return make_path(father,start,end,path)
 
 
 def actors_at_distance(graph, actor, distance):
@@ -92,22 +92,15 @@ def n_steps(graph, vertex, n):
                 lista.append(w)
     return lista
 
-def make_path(parents, start, end):
+def make_path(parents, start, end, path):
     v=end
     padre=parents[v]
-    lista=[]
     while v != start:
-        lista.insert(1,v)
+        path.insert(1,v)
         v=padre
  		padre=parents[v]
+    return list
 
- 	path=[]
-
- 	for i in range(len(lista)-1):
- 		information=graph.get_information(lista[i],lista[i+1])
- 		step=(lista[i],lista[i+1],information[0])
- 		path.append(step)
- 	return path
 
 def is_path(path, start, end):
     return path[0]==start and path[-1]==end
