@@ -129,8 +129,9 @@ def average_kbn(graph):
 
 def actors_like(graph, max):
     """"""
-    # TODO
-
+    similar=similar(graph, KB, max)
+    print("Los {} actores más similares KB son{}").format(max, similar)
+    
 def popularity_vs(graph, actor):
     """"""
     pop_actor = graph_functions.popularity(actor)

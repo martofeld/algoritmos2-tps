@@ -18,6 +18,15 @@ def bfs(graph, starter_vertex):
     return results
 
 
+def make_path(parents, start, end, path):
+    v=end
+    father=parents[v]
+    while v != start:
+        path.insert(1,v)
+        v=father
+        father=parents[v]
+    return list
+
 def path(graph, start, end):
     if start not in graph or end not in graph:
         return []
@@ -26,9 +35,8 @@ def path(graph, start, end):
     if start==end:
         return path
     visited={}
-    father={}
-    #obtener start
-    father[start]= None
+    parents={}
+    parents[start]= None
     visited[start]=True
     process=Queue()
     process.put(start)
@@ -37,12 +45,12 @@ def path(graph, start, end):
         v=process.get()
         for w in graph.get_neighbours(v):
             visited[w]=True
-            father[w]=v
+            parents[w]=v
             process.put(w)
             if w==end:
                 found_end = True
                 break
-    return make_path(father,start,end,path)
+    return make_path(parents,start,end,path)
 
 
 def actors_at_distance(graph, actor, distance):
@@ -65,22 +73,16 @@ def popularity(graph, actor):
 
     return actors * movies
 
-
-def similar(graph, actor):
-    """"""
-    # TODO
-
 def n_steps(graph, vertex, n):
     visited = {}
     level = {}
     if vertex not in graph:
         return False
-    #obtener el vertice
     level[vertex]=0
     process= Queue()
     process.put(vertex)
     visited[vertex]=True
-    lista=[]
+    at_n_steps=[]
     while not process.empty():
         v= process.get()
         for w in graph.get_neighbours(v):
@@ -89,23 +91,10 @@ def n_steps(graph, vertex, n):
                 level[w]=level[v]+1
                 process.put(w)
             if level[w]==n:
-                lista.append(w)
-    return lista
+                at_n_steps.append(w)
+    return at_n_steps
 
-def make_path(parents, start, end, path):
-    v=end
-    padre=parents[v]
-    while v != start:
-        path.insert(1,v)
-        v=padre
- 		padre=parents[v]
-    return list
-
-
-def is_path(path, start, end):
-    return path[0]==start and path[-1]==end
-
-def similares(graph, vertex, n): #to do nombre
+def similar(graph, vertex, n):
 	if vertex not in graph:
 		return False
 	neighbours= graph.get_neighbours(vertex):
