@@ -1,6 +1,7 @@
 import sys
 import graph_functions
 
+from datetime import datetime
 from graph import Graph
 
 PATH_TO_KB = "camino_hasta_KB"
@@ -20,7 +21,9 @@ def main():
         print("Wrong params")
         exit(1)
 
+    print ("loading file", datetime.now())
     graph = create_graph(sys.argv[1])
+    print ("finished loading file", datetime.now())
     run_command(graph)
 
 
@@ -40,10 +43,8 @@ def create_graph(file):
                     dict[movie] = [actor]
             graph.add_vertex(actor)
 
-    print(dict)
     for movie in dict:
         actors = dict[movie]
-        # print(actors, "for", movie)
         for i in range(0, len(actors)):
             for j in range(0, len(actors)):
                 if j != i:
@@ -59,9 +60,10 @@ def run_command(graph):
 
 def path_to_kb(graph, actor):
     """"""
-    graph_functions.path(graph, KB, actor)
-
-
+    path = graph_functions.path(graph, KB, actor)
+    for step in path:
+        print("'%' actuo con '%' en '%'").format(step[0],step[1],step[2])
+    
 def bacon_number(graph, actor):
     """"""
     # TODO
@@ -74,7 +76,15 @@ def bacon_number_gt_6(graph):
 
 def bacon_number_inf(graph):
     """"""
-    # TODO
+    list = []
+    for vertex in graph:
+        path = graph_functions.path(graph, vertex, KB)
+        if not path:
+            list.append(vertex)
+    if not list:
+        print("No hay actores con KBN infinito")
+    else:
+        print("Los actores con un Bacon Number infinito son", len(list))
 
 
 def average_kbn(graph):
@@ -86,10 +96,12 @@ def actors_like(graph, max):
     """"""
     # TODO
 
-
 def popularity_vs(graph, actor):
     """"""
-    # TODO
+    pop_actor = graph_functions.popularity(actor)
+    pop_kb = graph_functions.popularity(KB)
+    amount = (pop_actor * 100 / pop_kb)
+    print("'{}' es {} de lo popular que es Kevin Bacon".format(actor, amount))
 
 
 def movies_count(graph):
