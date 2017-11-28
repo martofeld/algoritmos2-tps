@@ -21,9 +21,9 @@ def main():
         print("Wrong params")
         exit(1)
 
-    print ("loading file", datetime.now())
+    print("loading file", datetime.now())
     graph = create_graph(sys.argv[1])
-    print ("finished loading file", datetime.now())
+    print("finished loading file", datetime.now())
     run_command(graph)
 
 
@@ -59,51 +59,74 @@ def create_graph(file):
 
 def run_command(graph):
     for line in sys.stdin:
-        args = line.strip().split(' ')
+        line = line.strip()
+        should_split = True
+        aux = ""
+        args = []
+        for char in line:
+            if char == "'":
+                should_split = not should_split
+            elif char == " " and should_split:
+                args.append(aux)
+                aux = ""
+            else:
+                aux += char
+        if aux:
+            args.append(aux)
+
         FUNCTIONS[args[0]](graph, *args[1:])  # Black magic
 
 
-def movie_path(grah, path):
-    for i in range(len(path)-1):
-        information=graph.get_information(lista[i],lista[i+1])
-        step=(path[i],path[i+1],information[0])
-        path.append(step)
-    return path
+def complete_information(graph, path):
+    print(path)
+    complete_path = []
+    for sth in path:  # Assuming path is a list of touples of the actors
+        actor1, actor2 = sth
+        information = graph.get_information(actor1, actor2)
+        step = (actor1, actor2, information[0])
+        complete_path.append(step)
+    return complete_path
+
 
 def path_to_kb(graph, actor):
     """"""
     path = graph_functions.path(graph, KB, actor)
-    movie_path = movie_path(graph, path)
+    movie_path = complete_information(graph, path)
     for step in movie_path:
-        print("'{}' actuo con '{}' en '{}'\n").format(step[0],step[1],step[2])
-    
+        print("'{}' actuo con '{}' en '{}'\n".format(step[0], step[1], step[2]))
+
+
 def bacon_number(graph, actor):
     """"""
     if actor not in graph.get_vertexes():
         print("No hay un camino posible de {} a Kevin Bacon\n").format(actor)
         return
     path = graph_functions.path(graph, KB, actor)
-    bacon_number=len(path)
+    bacon_number = len(path)
     if not bacon_number:
         return -1
     return bacon_number
 
-    >>> Con KBN igual a 6: N actores
+    # >>> Con KBN igual a 6: N actores
+
 
 def bacon_number_gt_6(graph):
     """"""
-    kb_numbers={}
+    kb_numbers = {}
     print("Los actores con un KBN mayor a 6 son:\n")
-    for actor in graph.get_vertexes():
-        number=bacon_number(graph,actor)
-        if number>=6:
+    actors = graph.get_vertexes()
+    for actor in actors:
+        number = bacon_number(graph, actor)
+        if number >= 6:
             if number not in actors:
-                kb_numbers[number]=0
-            kb_numbers[number]+=1
-    keys=kb_numbers.keys().sort()
+                kb_numbers[number] = 0
+            kb_numbers[number] += 1
+    keys = kb_numbers.keys().sort()
     for i in keys:
-        print("Con KBN igual a {}: {} actores").format(i,actors[i])
-#que pasa si no hay?
+        print("Con KBN igual a {}: {} actores").format(i, actors[i])
+
+
+# que pasa si no hay?
 
 
 
@@ -122,21 +145,22 @@ def bacon_number_inf(graph):
 
 def average_kbn(graph):
     """"""
-    count=0
-    actors=0
+    count = 0
+    actors = 0
     for actor in graph.get_vertexes():
-        number=bacon_number(graph, actor)
-        if number!=-1:
-            count+=number
-            actors+=1
-    return count//actors
+        number = bacon_number(graph, actor)
+        if number != -1:
+            count += number
+            actors += 1
+    return count // actors
 
 
 def actors_like(graph, max):
     """"""
-    similar=similar(graph, KB, max)
+    similar = graph_functions.similar(graph, KB, max)
     print("Los {} actores más similares KB son{}").format(max, similar)
-    
+
+
 def popularity_vs(graph, actor):
     """"""
     pop_actor = graph_functions.popularity(actor)
