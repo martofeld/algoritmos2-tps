@@ -25,7 +25,7 @@ nodo_t *nodo_crear(const char *clave, void *valor) {
         return NULL;
     }
     char *clave_aux = malloc(sizeof(char) * (strlen(clave) + 1));
-    if (!clave_aux){
+    if (!clave_aux) {
         free(nodo);
         return NULL;
     }
@@ -123,7 +123,7 @@ nodo_t *abb_obtener_nodo(const abb_t *abb, nodo_t *nodo, const char *clave) {
         return abb_obtener_nodo(abb, nodo->der, clave);
     }
     return abb_obtener_nodo(abb, nodo->izq, clave);
-    
+
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave) {
@@ -276,6 +276,57 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
         nodo_t *actual = pila_desapilar(pila);
         apilar_izquierdos(pila, actual->der);
         if (!visitar(actual->clave, actual->valor, extra)) {
+            break;
+        }
+    }
+    pila_destruir(pila);
+}
+
+bool in_range(abb_t *abb, const char *clave, const char *desde, const char *hasta) {
+    return comparar_clave(abb, clave, desde) >= 0 && comparar_clave(abb, clave, hasta) <= 0;
+}
+
+void apilar_izquierdos_condicional(pila_t *pila, abb_t *abb, nodo_t *inicio, char *desde, char *hasta) {
+    nodo_t *actual = inicio;
+    while (actual) {
+        if (in_range(abb, actual->clave, desde, hasta)) {
+            pila_apilar(pila, actual);
+            actual = actual->izq;
+        } else {
+            if (comparar_clave(abb, actual->clave, desde) < 0) {
+                // La clave actual es mas chica me fijo a mi derecha
+                if (actual->der && in_range(abb, actual->der->clave, desde, hasta)) {
+                    actual = actual->der;
+                }
+            } else {
+                if (actual->izq && in_range(abb, actual->izq->clave, desde, hasta)) {
+                    actual = actual->izq;
+                }
+            }
+        }
+    }
+}
+
+void abb_in_order_desde_hasta(abb_t *abb, bool visitar(char *, lista_t *), char *desde, char *hasta, void *extra) {
+    pila_t *pila = pila_crear();
+    if (!pila) return;
+
+    if (abb_cantidad(abb) == 0) return;
+
+    nodo_t *primero = abb->raiz;
+    while (primero &&
+           !in_range(abb, primero->clave, desde, hasta)) { // esto va a ir hasta que encuentre el primero en el rango
+        if (comparar_clave(abb, primero->clave, desde) < 0) { // Si la clave del primero es menor a desde
+            primero = primero->der;
+        } else {
+            primero = primero->izq; // Me fui del rango hacia la derecha
+        }
+    }
+    apilar_izquierdos_condicional(pila, abb, primero, desde, hasta);
+    while (!pila_esta_vacia(pila)) {
+        nodo_t *actual = pila_desapilar(pila);
+        apilar_izquierdos_condicional(pila, abb, actual->der, desde, hasta);
+        if (!visitar(actual->clave, extra)) {
             break;
         }
     }

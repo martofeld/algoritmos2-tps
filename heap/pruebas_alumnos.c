@@ -51,7 +51,7 @@ void pruebas_encolar() {
     heap_encolar(heap, &array[8]);
     heap_encolar(heap, &array[0]);
     print_test("La cantidad es 7", heap_cantidad(heap) == 7);
-    print_test("El maximo es 8", heap_ver_max(heap) == &array[8]);
+    print_test("El maximo es 8", heap_ver_tope(heap) == &array[8]);
     heap_destruir(heap, NULL);
 }
 
@@ -85,7 +85,7 @@ void pruebas_heapify() {
     }
     heap_t *heap = heap_crear_arr(auxArray, largo, comparar_void);
 
-    print_test("El maximo es 9", heap_ver_max(heap) == &array[7]);
+    print_test("El maximo es 9", heap_ver_tope(heap) == &array[7]);
     bool ok = true;
     for (int i = 0; i < largo; i++) {
         ok &= heap_desencolar(heap) == &array[ordered_indexes[i]];

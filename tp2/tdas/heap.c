@@ -36,7 +36,7 @@ void upheap(void *arreglo[], cmp_func_t cmp, size_t posicion) {
     upheap(arreglo, cmp, padre);
 }
 
-size_t obtener_hijo_mayor(void* arreglo[], cmp_func_t cmp, size_t padre, size_t largo){
+size_t obtener_hijo_mayor(void *arreglo[], cmp_func_t cmp, size_t padre, size_t largo) {
     size_t hijo_izq = HIJO_IZQ(padre);
     size_t hijo_der = HIJO_DER(padre);
     size_t pos_mayor;
@@ -51,11 +51,12 @@ size_t obtener_hijo_mayor(void* arreglo[], cmp_func_t cmp, size_t padre, size_t 
     return pos_mayor;
 }
 
-bool es_mayor_a_ambos_hijos(void* arreglo[], cmp_func_t cmp, size_t padre, size_t largo){
+bool es_mayor_a_ambos_hijos(void *arreglo[], cmp_func_t cmp, size_t padre, size_t largo) {
     size_t hijo_izq = HIJO_IZQ(padre);
     size_t hijo_der = HIJO_DER(padre);
     return COMPARAR(cmp, arreglo[padre], arreglo[hijo_izq]) >= 0 && // Es mas grande al izq
-    (hijo_der >= largo || COMPARAR(cmp, arreglo[padre], arreglo[hijo_der]) >= 0); // Existe el derecho y es mas chico
+           (hijo_der >= largo ||
+            COMPARAR(cmp, arreglo[padre], arreglo[hijo_der]) >= 0); // Existe el derecho y es mas chico
 }
 
 void downheap(void *arreglo[], cmp_func_t cmp, size_t posicion, size_t largo) {
@@ -100,7 +101,7 @@ heap_t *heap_crear(cmp_func_t cmp) {
 }
 
 void heapify(void *arreglo[], cmp_func_t cmp, size_t n) {
-    size_t k = n/2 + 1;
+    size_t k = n / 2 + 1;
     do {
         downheap(arreglo, cmp, k - 1, n);
         k--;
@@ -110,12 +111,12 @@ void heapify(void *arreglo[], cmp_func_t cmp, size_t n) {
 heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp) {
     heap_t *heap = _crear_heap(cmp, n, n);
     if (!heap) return NULL;
-    void** arreglo_copia = malloc(sizeof(void*) * n);
-    if (!arreglo_copia){
+    void **arreglo_copia = malloc(sizeof(void *) * n);
+    if (!arreglo_copia) {
         free(heap);
         return NULL;
     }
-    memcpy(arreglo_copia, arreglo, sizeof(void*) * n);
+    memcpy(arreglo_copia, arreglo, sizeof(void *) * n);
     heapify(arreglo_copia, cmp, n);
     heap->arreglo = arreglo_copia;
     return heap;
@@ -166,7 +167,7 @@ bool heap_encolar(heap_t *heap, void *elem) {
 }
 
 void *heap_ver_tope(const heap_t *heap) {
-    if(heap_esta_vacio(heap)){
+    if (heap_esta_vacio(heap)) {
         return NULL;
     }
     return heap->arreglo[0];
@@ -176,7 +177,7 @@ void *heap_desencolar(heap_t *heap) {
     if (heap_esta_vacio(heap)) {
         return NULL;
     }
-    if(heap->cantidad / 4 == heap->largo){
+    if (heap->cantidad / 4 == heap->largo) {
         redimensionar(heap, heap->largo / REDIMENSION);
     }
     void *desencolado = heap->arreglo[0];
