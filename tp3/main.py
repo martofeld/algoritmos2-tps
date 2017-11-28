@@ -93,13 +93,13 @@ def path_to_kb(graph, actor):
     path = graph_functions.path(graph, KB, actor)
     movie_path = complete_information(graph, path)
     for step in movie_path:
-        print("'{}' actuo con '{}' en '{}'\n".format(step[0], step[1], step[2]))
+        print("'{}' actuo con '{}' en '{}'".format(step[0], step[1], step[2]))
 
 
-def bacon_number(graph, actor):
+def obtain_bacon_number(graph, actor):
     """"""
     if actor not in graph.get_vertexes():
-        print("No hay un camino posible de {} a Kevin Bacon\n").format(actor)
+        print("No hay un camino posible de {} a Kevin Bacon").format(actor)
         return
     path = graph_functions.path(graph, KB, actor)
     bacon_number = len(path)
@@ -109,6 +109,10 @@ def bacon_number(graph, actor):
 
     # >>> Con KBN igual a 6: N actores
 
+def bacon_number(graph, actor):
+    bn = obtain_bacon_number(graph, actor)
+    print("'{}' tiene un Bacon Number de {}".format(actor, bn))
+
 
 def bacon_number_gt_6(graph):
     """"""
@@ -116,7 +120,7 @@ def bacon_number_gt_6(graph):
     print("Los actores con un KBN mayor a 6 son:\n")
     actors = graph.get_vertexes()
     for actor in actors:
-        number = bacon_number(graph, actor)
+        number = obtain_bacon_number(graph, actor)
         if number >= 6:
             if number not in actors:
                 kb_numbers[number] = 0
@@ -148,7 +152,7 @@ def average_kbn(graph):
     count = 0
     actors = 0
     for actor in graph.get_vertexes():
-        number = bacon_number(graph, actor)
+        number = obtain_bacon_number(graph, actor)
         if number != -1:
             count += number
             actors += 1
