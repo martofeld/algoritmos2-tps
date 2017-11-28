@@ -26,12 +26,17 @@ def main():
 
 def create_graph(file):
     """"""
+    actors_dict = {}
     dict = {}
     graph = Graph()
     with open(file, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip().split(',')
             actor = line[0]
+            if actor in actors_dict:
+                actor = actors_dict[actor]
+            else:
+                actors_dict[actor] = actor
             movies = line[1:]
             for movie in movies:
                 if movie in dict:
@@ -45,7 +50,7 @@ def create_graph(file):
         actors = dict[movie]
         # print(actors, "for", movie)
         for i in range(0, len(actors)):
-            for j in range(0, len(actors)):
+            for j in range(i, len(actors)):
                 if j != i:
                     graph.add_edge(actors[i], actors[j], movie)
     return graph
