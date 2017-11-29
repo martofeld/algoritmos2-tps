@@ -26,6 +26,7 @@ def make_path(parents, start, end):
         final_path.append((parent, v))
         v = parent
         parent = parents[v]
+    final_path.reverse()
     return final_path
 
 
