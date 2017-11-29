@@ -107,25 +107,28 @@ def n_steps(graph, vertex, n):
     return at_n_steps
 
 
+def compare_neighbours(graph, vertex, list_):
+    count = 0
+    neighbours= graph.get_neighbours(vertex)
+    for w in neighbours:
+        if w in list_:
+            count += 1
+    return count
+
+
 def similar(graph, vertex, n):
     if vertex not in graph:
         return False
     neighbours = graph.get_neighbours(vertex)
-    actors = {}
-    for v in graph.get_vertex():
+    print(neighbours)
+    actors={}
+    for v in graph.get_vertexes():
+        if v in neighbours or v==vertex:
+            continue
         number = compare_neighbours(graph, v, neighbours)
-        actors[number] = v
-    list_actors = actors.keys().sort()
-    n_similars = []
-    for i in range(n):
-        similar = actors[list_actors.pop()]
-        n_similars.append(similar)
-    return n_similars
-
-
-def compare_neighbours(graph, vertex, list_):
-    count = 0
-    for w in graph.get_neighbours(vertex):
-        if w in list_:
-            count += 1
-    return count
+        print(v)
+        print(number)
+        actors[v]=number
+    heap = [(-value, key) for key,value in actors.items()]
+    largest = heapq.nsmallest(10, heap)
+    return largest
