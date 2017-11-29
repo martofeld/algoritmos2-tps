@@ -44,32 +44,33 @@ class Graph:
 
     def add_vertex(self, name):
         """Adds a new vertex"""
-        if not name in self.vertexes:
+        if not name in self:
             self.vertexes[name] = set()
 
     def remove_vertex(self, name):
         """"""
-        self.vertexes.pop(name)
-        for edge in self.edges:
-            if edge.has_vertex(name):
-                self.edges.remove(edge)
+        if not name in self:
+            return
+        edges = self.vertexes.pop(name)
+        for edge in edges:
+            self.edges[edge].remove(name)
 
     def add_edge(self, vertex1, vertex2, information):
         """Adds a new edge between the two vertexes with the extra information"""
-        key = _Key(vertex1, vertex2)
-        if vertex2 in self.vertexes[vertex1]:
-            self.edges[key].add_to_information(information)
-        else:
-            self.vertexes[vertex1].add(vertex2)
-            self.vertexes[vertex2].add(vertex1)
-            self.edges[key] = _Edge(vertex1, vertex2, [information])
+        if vertex1 not in self or vertex2 not in self:
+            return
+
+        if information not in self.edges:
+            self.edges[information] = set()
+
+        self.vertexes[vertex1].add(information)
+        self.vertexes[vertex2].add(information)
+        self.edges[information].add(vertex1)
+        self.edges[information].add(vertex2)
 
     def remove_edge(self, vertex1, vertex2):
         """Removes the edge that connects the two vertexes"""
-        key = _Key(vertex1, vertex2)
-        self.vertexes[vertex2].remove(vertex1)
-        self.vertexes[vertex1].remove(vertex2)
-        self.edges.pop(key)
+        # TODO, was not needed yet
 
     def get_vertexes(self):
         """"""
@@ -77,11 +78,7 @@ class Graph:
 
     def get_edges(self):
         """"""
-        edges = set()
-        for edge in self.edges:
-            for info in edge.information:
-                edges.add(info)
-        return edges
+        return self.edges.keys()
 
     def get_vertexes_count(self):
         """Returns the amount of vertexes in the graph"""
@@ -89,12 +86,18 @@ class Graph:
 
     def get_neighbours(self, vertex):
         """Returns the neighbours of a given vertex"""
-        return self.vertexes[vertex]
+        neighbours = set()
+        edges = self.vertexes[vertex]
+        for edge in edges:
+            for neighbour in self.edges[edge]:
+                neighbours.add(neighbour)
+        return neighbours
 
     def get_information(self, vertex1, vertex2):
         """Returns the extra information from the edge of two vertexes"""
-        key = _Key(vertex1, vertex2)
-        return self.edges[key].information
+        vertex1_info = self.vertexes[vertex1]
+        vertex2_info = self.vertexes[vertex2]
+        return vertex1_info.intersection(vertex2_info)
 
     def are_connected(self, vertex1, vertex2):
         """"""
