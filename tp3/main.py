@@ -107,7 +107,6 @@ def obtain_bacon_number(graph, actor):
         return -1
     return bacon_number
 
-    # >>> Con KBN igual a 6: N actores
 
 def bacon_number(graph, actor):
     bn = obtain_bacon_number(graph, actor)
@@ -118,16 +117,19 @@ def bacon_number_gt_6(graph):
     """"""
     kb_numbers = {}
     print("Los actores con un KBN mayor a 6 son:\n")
-    actors = graph.get_vertexes()
-    for actor in actors:
-        number = obtain_bacon_number(graph, actor)
-        if number >= 6:
-            if number not in actors:
-                kb_numbers[number] = 0
-            kb_numbers[number] += 1
-    keys = kb_numbers.keys().sort()
-    for i in keys:
-        print("Con KBN igual a {}: {} actores").format(i, actors[i])
+    distance = 6
+    should_continue = True
+    while should_continue:
+        actors = graph_functions.actors_at_distance(graph, KB, distance)
+        print(actors, "at distance", distance)
+        if not actors:
+            should_continue = False
+        kb_numbers[distance] = len(actors)
+        distance += 1
+
+    print(kb_numbers)
+    for i, amount in kb_numbers.items():
+        print("Con KBN igual a {}: {} actores".format(i, amount))
 
 
 # que pasa si no hay?
@@ -167,8 +169,11 @@ def actors_like(graph, max):
 
 def popularity_vs(graph, actor):
     """"""
-    pop_actor = graph_functions.popularity(actor)
-    pop_kb = graph_functions.popularity(KB)
+    pop_actor = graph_functions.popularity(graph, actor)
+    if pop_actor < 0:
+        print("No hay datos de '{}'".format(actor))
+        return;
+    pop_kb = graph_functions.popularity(graph, KB)
     amount = (pop_actor * 100 / pop_kb)
     print("'{}' es {} de lo popular que es Kevin Bacon".format(actor, amount))
 

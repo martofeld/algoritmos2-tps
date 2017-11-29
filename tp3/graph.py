@@ -14,6 +14,9 @@ class _Edge:
     def has_vertex(self, vertex):
         return vertex == self.vertex1 or vertex == self.vertex2
 
+    def get_information(self):
+        return self.information
+
     def __eq__(self, other):
         return self.key == other.key
 
@@ -98,7 +101,7 @@ class Graph:
         return vertex2 in self.vertexes[vertex1]
 
     def get_edges_of_vertex(self, vertex):
-        return [edge for edge in self.edges if edge.has_vertex(vertex)]
+        return [edge for edge in self.edges.values() if edge.has_vertex(vertex)]
 
     def __contains__(self, vertex):
         """Checks if a vertex is in the graph"""

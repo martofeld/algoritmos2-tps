@@ -61,37 +61,49 @@ def actors_at_distance(graph, actor, distance):
 
 def popularity(graph, actor):
     """"""
-    actors = 0
-    neighbours = graph.get_neighbours(actor)
-    actors += len(neighbours)
-    for neighbour in neighbours:
-        actors += len(graph.get_neighbours(neighbour)) - 1  # This way we remove myself
-    movies = 0
-    for edge in graph.get_edges_of_vertex(actor):
-        movies += len(edge.get_information())
+    if not actor in graph:
+        return -1
 
-    return actors * movies
+    actors = actors_at_distance(graph, actor, 2)
+    movies_counted = set()
+    movies_count = 0
+    for actor in actors:
+        for edge in graph.get_edges_of_vertex(actor):
+            for movie in edge.get_information():
+                if not movie in movies_counted:
+                    movies_count += 1
+                    movies_counted.add(movie)
+
+    print("total de actores", len(actors))
+    print("total de peliculas", movies_count)
+
+    return len(actors) * movies_count
 
 
 def n_steps(graph, vertex, n):
-    visited = {}
-    level = {}
     if vertex not in graph:
         return False
-    level[vertex] = 0
+
+    visited = {}
+    level = {}
     process = Queue()
+
     process.put(vertex)
     visited[vertex] = True
+    level[vertex] = 0
     at_n_steps = []
     while not process.empty():
         v = process.get()
         for w in graph.get_neighbours(v):
-            if w not in visited:
-                visited[w] = True
+            if w in visited:
+                continue
+
+            if level[v] == n-1 and not w in at_n_steps:
+                at_n_steps.append(w)
+            else:
                 level[w] = level[v] + 1
                 process.put(w)
-            if level[w] == n:
-                at_n_steps.append(w)
+            visited[w] = True
     return at_n_steps
 
 
