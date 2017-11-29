@@ -53,9 +53,9 @@ def path(graph, start, end):
 
 def actors_at_distance(graph, actor, distance):
     """"""
-    list = n_steps(graph, actor, distance)
-    list.sort()
-    return list
+    values = n_steps(graph, actor, distance)
+    values.sort()
+    return values
 
 
 def popularity(graph, actor):
@@ -66,12 +66,11 @@ def popularity(graph, actor):
     actors = actors_at_distance(graph, actor, 2)
     movies_counted = set()
     movies_count = 0
-    for actor in actors:
-        for edge in graph.get_edges_of_vertex(actor):
-            for movie in edge.get_information():
-                if not movie in movies_counted:
-                    movies_count += 1
-                    movies_counted.add(movie)
+    for n in graph.get_neighbours(actor):
+        for movie in graph.get_edges_of_vertex(n):
+            if movie not in movies_counted:
+                movies_count += 1
+                movies_counted.add(movie)
 
     return len(actors) * movies_count
 
@@ -79,6 +78,9 @@ def popularity(graph, actor):
 def n_steps(graph, vertex, n):
     if vertex not in graph:
         return False
+
+    if n == 0:
+        return [vertex]
 
     visited = {}
     level = {}
@@ -94,7 +96,7 @@ def n_steps(graph, vertex, n):
             if w in visited:
                 continue
 
-            if level[v] == n-1 and not w in at_n_steps:
+            if level[v] == n - 1:
                 at_n_steps.append(w)
             else:
                 level[w] = level[v] + 1

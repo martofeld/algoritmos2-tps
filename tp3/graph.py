@@ -58,7 +58,7 @@ class Graph:
     def add_edge(self, vertex1, vertex2, information):
         """Adds a new edge between the two vertexes with the extra information"""
         if vertex1 not in self or vertex2 not in self:
-            return
+            raise KeyError("Algun vertice no esta")
 
         if information not in self.edges:
             self.edges[information] = set()
@@ -67,6 +67,7 @@ class Graph:
         self.vertexes[vertex2].add(information)
         self.edges[information].add(vertex1)
         self.edges[information].add(vertex2)
+        print(len(self.edges))
 
     def remove_edge(self, vertex1, vertex2):
         """Removes the edge that connects the two vertexes"""
@@ -99,12 +100,8 @@ class Graph:
         vertex2_info = self.vertexes[vertex2]
         return vertex1_info.intersection(vertex2_info)
 
-    def are_connected(self, vertex1, vertex2):
-        """"""
-        return vertex2 in self.vertexes[vertex1]
-
     def get_edges_of_vertex(self, vertex):
-        return [edge for edge in self.edges.values() if edge.has_vertex(vertex)]
+        return self.vertexes[vertex]
 
     def __contains__(self, vertex):
         """Checks if a vertex is in the graph"""

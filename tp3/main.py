@@ -48,10 +48,9 @@ def create_graph(file):
                     dict[movie] = [actor]
             graph.add_vertex(actor)
 
-    for movie in dict:
-        actors = dict[movie]
+    for movie, actors in dict.items():
         for i in range(0, len(actors)):
-            for j in range(i, len(actors)):
+            for j in range(0, len(actors)):
                 if j != i:
                     graph.add_edge(actors[i], actors[j], movie)
     return graph
