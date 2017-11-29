@@ -86,7 +86,7 @@ def complete_information(graph, path):
     for sth in path:  # Assuming path is a list of touples of the actors
         actor1, actor2 = sth
         information = graph.get_information(actor1, actor2)
-        step = (actor1, actor2, information[0])
+        step = (actor1, actor2, information.pop())
         complete_path.append(step)
     return complete_path
 
@@ -101,9 +101,6 @@ def path_to_kb(graph, actor):
 
 def obtain_bacon_number(graph, actor):
     """"""
-    if actor not in graph.get_vertexes():
-        print("No hay un camino posible de {} a Kevin Bacon").format(actor)
-        return
     path = graph_functions.path(graph, KB, actor)
     bacon_number = len(path)
     if not bacon_number:
@@ -112,6 +109,9 @@ def obtain_bacon_number(graph, actor):
 
 
 def bacon_number(graph, actor):
+    if actor not in graph.get_vertexes():
+        print("No hay un camino posible de {} a Kevin Bacon").format(actor)
+        return
     bn = obtain_bacon_number(graph, actor)
     print("'{}' tiene un Bacon Number de {}".format(actor, bn))
 
@@ -119,26 +119,22 @@ def bacon_number(graph, actor):
 def bacon_number_gt_6(graph):
     """"""
     kb_numbers = {}
-    print("Los actores con un KBN mayor a 6 son:\n")
     distance = 6
     should_continue = True
     while should_continue:
         actors = graph_functions.actors_at_distance(graph, KB, distance)
-        print(actors, "at distance", distance)
         if not actors:
             should_continue = False
+            continue
         kb_numbers[distance] = len(actors)
         distance += 1
-
     print(kb_numbers)
     amount=list(kb_numbers.keys())
     amount.sort()
     for i in amount:
         print("Con KBN igual a {}: {} actores".format(i, kb_numbers[i]))
-
-
-# que pasa si no hay?
-
+    else:
+        print("No hay actores con KBN mayor a 6")
 
 
 def bacon_number_inf(graph):
@@ -169,7 +165,7 @@ def average_kbn(graph):
 def actors_like(graph, max):
     """"""
     similar = graph_functions.similar(graph, KB, max)
-    print("Los {} actores más similares KB son{}").format(max, similar)
+    print("Los {} actores más similares KB son {}".format(max, similar))
 
 
 def popularity_vs(graph, actor):
@@ -177,7 +173,7 @@ def popularity_vs(graph, actor):
     pop_actor = graph_functions.popularity(graph, actor)
     if pop_actor < 0:
         print("No hay datos de '{}'".format(actor))
-        return;
+        return
     pop_kb = graph_functions.popularity(graph, KB)
     amount = (pop_actor * 100 / pop_kb)
     print("'{}' es {} de lo popular que es Kevin Bacon".format(actor, amount))
