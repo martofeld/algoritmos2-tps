@@ -22,8 +22,12 @@ def main():
         exit(1)
 
     print("loading file", datetime.now())
+    time1=datetime.now()
     graph = create_graph(sys.argv[1])
+    time2=datetime.now()
     print("finished loading file", datetime.now())
+    print(time2-time1)
+
     run_command(graph)
 
 
@@ -78,7 +82,6 @@ def run_command(graph):
 
 
 def complete_information(graph, path):
-    print(path)
     complete_path = []
     for sth in path:  # Assuming path is a list of touples of the actors
         actor1, actor2 = sth
@@ -128,8 +131,10 @@ def bacon_number_gt_6(graph):
         distance += 1
 
     print(kb_numbers)
-    for i, amount in kb_numbers.items():
-        print("Con KBN igual a {}: {} actores".format(i, amount))
+    amount=list(kb_numbers.keys())
+    amount.sort()
+    for i in amount:
+        print("Con KBN igual a {}: {} actores".format(i, kb_numbers[i]))
 
 
 # que pasa si no hay?
