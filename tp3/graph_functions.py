@@ -73,9 +73,6 @@ def popularity(graph, actor):
                     movies_count += 1
                     movies_counted.add(movie)
 
-    print("total de actores", len(actors))
-    print("total de peliculas", movies_count)
-
     return len(actors) * movies_count
 
 
@@ -111,10 +108,11 @@ def similar(graph, vertex, n):
         return False
     neighbours = graph.get_neighbours(vertex)
     actors = {}
-    for v in graph.get_vertex():
+    for v in graph.get_vertexes():
         number = compare_neighbours(graph, v, neighbours)
         actors[number] = v
-    list_actors = actors.keys().sort()
+    list_actors = list(actors.keys())
+    list_actors.sort()
     n_similars = []
     for i in range(n):
         similar = actors[list_actors.pop()]

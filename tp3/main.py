@@ -150,18 +150,18 @@ def average_kbn(graph):
     """"""
     count = 0
     actors = 0
-    for actor in graph.get_vertexes():
+    for i, actor in enumerate(graph.get_vertexes()):
         number = obtain_bacon_number(graph, actor)
         if number != -1:
             count += number
             actors += 1
-    return count // actors
+    print("El KBN promedio es {:.2f}".format(count / actors))
 
 
 def actors_like(graph, max):
     """"""
-    similar = graph_functions.similar(graph, KB, max)
-    print("Los {} actores más similares KB son{}").format(max, similar)
+    similar = graph_functions.similar(graph, KB, int(max))
+    print("Los {} actores más similares KB son{}".format(max, similar))
 
 
 def popularity_vs(graph, actor):
