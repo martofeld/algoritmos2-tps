@@ -1,62 +1,67 @@
-from queue import LifoQueue as Queue
+import random
+import heapq
 
 
-def bfs(graph, starter_vertex):
-    enqueued = [False for v in graph.vertices()]
-    results = []
-    q = Queue()
-    q.put((starter_vertex, 0))
-    results.append((starter_vertex, 0))
-    enqueued[starter_vertex] = True
-    while not q.empty():
-        (u, pasos) = q.get()
-        results.append((u, pasos))
-        for w in graph.get_neighbours(u):
-            if not enqueued[w]:
-                q.put((w, pasos + 1))
-                enqueued[w] = True
-    return results
+class FifoQueue:
+    def __init__(self):
+        self.lista = []
+
+    def get(self):
+        if not self.empty():
+            return self.lista.pop(0)
+
+    def empty(self):
+        return len(self.lista) == 0
+
+    def put(self, dato):
+        self.lista.append(dato)
+        return
 
 
-def make_path(parents, start, end, path):
-    v = end
-    father = parents[v]
-    while v != start:
-        path.insert(1, (father, v))
-        v = father
-        father = parents[v]
-    return path
+def make_path(parents, start, end):
+    v = start
+    parent = parents[v]
+    final_path = []
+    while v != end:
+        final_path.append((parent, v))
+        v = parent
+        parent = parents[v]
+    return final_path
 
 
 def path(graph, start, end):
     if start not in graph or end not in graph:
         return []
-    path = []
-    if start == end:
-        return path
+
     visited = {}
+    visited[end] = True
     parents = {}
-    parents[start] = None
-    visited[start] = True
-    process = Queue()
-    process.put(start)
-    found_end = False
-    while not process.empty() and not found_end:
+    parents[end] = None
+    process = FifoQueue()
+    process.put(end)
+    v = None
+    while not process.empty():
         v = process.get()
+        if v == start:
+            break
+
         for w in graph.get_neighbours(v):
-            visited[w] = True
-            parents[w] = v
-            process.put(w)
-            if w == end:
-                found_end = True
-                break
-    return make_path(parents, start, end, path)
+            if w not in visited:
+                visited[w] = True
+                parents[w] = v
+                process.put(w)
+
+    if v != start:
+        return []
+
+    return make_path(parents, start, end)
+
 
 def actors_at_distance(graph, actor, distance):
     """"""
-    list = n_steps(graph, actor, distance)
-    list.sort()
-    return list
+    values = n_steps(graph, actor, distance)
+    values.sort()
+    return values
 
 
 def popularity(graph, actor):
@@ -67,15 +72,11 @@ def popularity(graph, actor):
     actors = actors_at_distance(graph, actor, 2)
     movies_counted = set()
     movies_count = 0
-    for actor in actors:
-        for edge in graph.get_edges_of_vertex(actor):
-            for movie in edge.get_information():
-                if not movie in movies_counted:
-                    movies_count += 1
-                    movies_counted.add(movie)
-
-    print("total de actores", len(actors))
-    print("total de peliculas", movies_count)
+    for n in graph.get_neighbours(actor):
+        for movie in graph.get_edges_of_vertex(n):
+            if movie not in movies_counted:
+                movies_count += 1
+                movies_counted.add(movie)
 
     return len(actors) * movies_count
 
@@ -84,9 +85,12 @@ def n_steps(graph, vertex, n):
     if vertex not in graph:
         return False
 
+    if n == 0:
+        return [vertex]
+
     visited = {}
     level = {}
-    process = Queue()
+    process = FifoQueue()
 
     process.put(vertex)
     visited[vertex] = True
@@ -98,7 +102,7 @@ def n_steps(graph, vertex, n):
             if w in visited:
                 continue
 
-            if level[v] == n-1 and not w in at_n_steps:
+            if level[v] == n - 1:
                 at_n_steps.append(w)
             else:
                 level[w] = level[v] + 1
@@ -110,17 +114,34 @@ def n_steps(graph, vertex, n):
 def similar(graph, vertex, n):
     if vertex not in graph:
         return False
-    neighbours = graph.get_neighbours(vertex)
+
     actors = {}
-    for v in graph.get_vertex():
-        number = compare_neighbours(graph, v, neighbours)
-        actors[number] = v
-    list_actors = actors.keys().sort()
-    n_similars = []
-    for i in range(n):
-        similar = actors[list_actors.pop()]
-        n_similars.append(similar)
-    return n_similars
+
+    random_walk(graph, vertex, actors)
+    heap = []
+
+    for i, (actor, value) in enumerate(actors.items()):
+        if i < n:
+            heapq.heappush(heap, (value, actor))  # Populate the first N
+            continue
+        if value > heap[0][0]:
+            heapq.heappop(heap)
+            heapq.heappush(heap, (value, actor))
+    aux = [t for t in heap]
+    aux.sort(key=lambda t: t[0], reverse=True)
+    return [t[1] for t in aux]
+
+
+def random_walk(graph, vertex, actors):
+    original_neighbours = graph.get_neighbours(vertex)
+    for i in range(random.randint(100, 200)):
+        v = vertex
+        for j in range(random.randint(20, 30)):
+            neighbours = graph.get_neighbours(v)
+            v = random.sample(neighbours, 1)[0] #Sample returns a list
+            if v in original_neighbours or v == vertex: # If its a direct neighbour or the original ignore
+                continue
+            actors[v] = actors.get(v, 0) + 1
 
 
 def compare_neighbours(graph, vertex, list_):
