@@ -1,50 +1,12 @@
-class _Edge:
-    def __init__(self, vertex1, vertex2, information=[]):
-        self.vertex1 = vertex1
-        self.vertex2 = vertex2
-        self.key = _Key(vertex1, vertex2)
-        self.information = information
-
-    def add_to_information(self, info):
-        self.information.append(info)
-
-    def get_key(self):
-        return self.key
-
-    def has_vertex(self, vertex):
-        return vertex == self.vertex1 or vertex == self.vertex2
-
-    def get_information(self):
-        return self.information
-
-    def __eq__(self, other):
-        return self.key == other.key
-
-    def __hash__(self):
-        return hash(self.vertex1) * hash(self.vertex2)
-
-
-class _Key:
-    def __init__(self, k1, k2):
-        self.k1 = k1
-        self.k2 = k2
-
-    def __eq__(self, other):
-        return (self.k1 == other.k1 and self.k2 == other.k2) or (self.k1 == other.k2 and self.k2 == other.k1)
-
-    def __hash__(self):
-        return hash(self.k1) * hash(self.k2)
-
-
 class Graph:
-    def __init__(self):
+    def __init__(self, vertexes={}, edges={}):
         """Creates a new empty graph"""
-        self.vertexes = {}
-        self.edges = {}
+        self.vertexes = vertexes
+        self.edges = edges
 
     def add_vertex(self, name):
         """Adds a new vertex"""
-        if not name in self:
+        if name not in self:
             self.vertexes[name] = set()
 
     def remove_vertex(self, name):
@@ -58,7 +20,7 @@ class Graph:
     def add_edge(self, vertex1, vertex2, information):
         """Adds a new edge between the two vertexes with the extra information"""
         if vertex1 not in self or vertex2 not in self:
-            return
+            raise KeyError("Algun vertice no esta")
 
         if information not in self.edges:
             self.edges[information] = set()
@@ -99,12 +61,8 @@ class Graph:
         vertex2_info = self.vertexes[vertex2]
         return vertex1_info.intersection(vertex2_info)
 
-    def are_connected(self, vertex1, vertex2):
-        """"""
-        return vertex2 in self.vertexes[vertex1]
-
     def get_edges_of_vertex(self, vertex):
-        return [edge for edge in self.edges.values() if edge.has_vertex(vertex)]
+        return self.vertexes[vertex]
 
     def __contains__(self, vertex):
         """Checks if a vertex is in the graph"""
