@@ -1,5 +1,6 @@
 import random
 import heapq
+from graph import Graph
 
 
 class FifoQueue:
@@ -16,6 +17,31 @@ class FifoQueue:
     def put(self, dato):
         self.lista.append(dato)
         return
+
+
+def create_graph(file):
+    """"""
+    movies_dict = {}
+    actors_dict = {}
+    movies_name_holder = {}  # Saves strings for single usage
+
+    with open(file, 'r', newline='', encoding="utf-8") as file:
+        for line in file:
+            line = line.strip().split(',')
+            actor = line[0]
+            movies = line[1:]
+
+            actors_dict[actor] = set()
+            for movie in movies:
+                if movie not in movies_dict:
+                    movies_dict[movie] = set()
+                    movies_name_holder[movie] = movie
+                else:
+                    movie = movies_name_holder[movie]
+                actors_dict[actor].add(movie)
+                movies_dict[movie].add(actor)
+
+    return Graph(actors_dict, movies_dict)
 
 
 def make_path(parents, start, end):
@@ -60,6 +86,9 @@ def path(graph, start, end):
 
 def actors_at_distance(graph, actor, distance):
     """"""
+    if actor not in graph or distance < 0:
+        return []
+
     values = n_steps(graph, actor, distance)
     values.sort()
     return values
@@ -83,9 +112,6 @@ def popularity(graph, actor):
 
 
 def n_steps(graph, vertex, n):
-    if vertex not in graph:
-        return False
-
     if n == 0:
         return [vertex]
 
@@ -139,8 +165,8 @@ def random_walk(graph, vertex, actors):
         v = vertex
         for j in range(random.randint(20, 30)):
             neighbours = graph.get_neighbours(v)
-            v = random.sample(neighbours, 1)[0] #Sample returns a list
-            if v in original_neighbours or v == vertex: # If its a direct neighbour or the original ignore
+            v = random.sample(neighbours, 1)[0]  # Sample returns a list
+            if v in original_neighbours or v == vertex:  # If its a direct neighbour or the original ignore
                 continue
             actors[v] = actors.get(v, 0) + 1
 
@@ -151,3 +177,24 @@ def compare_neighbours(graph, vertex, list_):
         if w in list_:
             count += 1
     return count
+
+
+# ------- PUBLIC API BECAUSE REQUIREMENTS -------
+def camino(grafo, vertice1, vertice2):
+    return path(grafo, vertice1, vertice2)
+
+
+def actores_a_distancia(grafo, actor, distancia):
+    return actors_at_distance(grafo, actor, distancia)
+
+
+def popularidad(grafo, actor):
+    return popularity(grafo, actor)
+
+
+def similares(grafo, actor, n):
+    return similar(grafo, actor, n)
+
+
+def grafo_crear(archivo):
+    return create_graph(archivo)

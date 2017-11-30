@@ -1,5 +1,5 @@
 import sys
-import graph_functions
+import seis_grados as graph_functions
 
 from datetime import datetime
 from graph import Graph
@@ -21,35 +21,8 @@ def main():
         print("Wrong params")
         exit(1)
 
-    print("loading file", datetime.now())
-    graph = create_graph(sys.argv[1])
-    print("finished loading file", datetime.now())
+    graph = graph_functions.create_graph(sys.argv[1])
     run_command(graph)
-
-
-def create_graph(file):
-    """"""
-    movies_dict = {}
-    actors_dict = {}
-    movies_name_holder = {} # Saves strings for single usage
-
-    with open(file, 'r', newline='', encoding="utf-8") as file:
-        for line in file:
-            line = line.strip().split(',')
-            actor = line[0]
-            movies = line[1:]
-
-            actors_dict[actor] = set()
-            for movie in movies:
-                if movie not in movies_dict:
-                    movies_dict[movie] = set()
-                    movies_name_holder[movie] = movie
-                else:
-                    movie = movies_name_holder[movie]
-                actors_dict[actor].add(movie)
-                movies_dict[movie].add(actor)
-
-    return Graph(actors_dict, movies_dict)
 
 
 def run_command(graph):
@@ -69,7 +42,11 @@ def run_command(graph):
         if aux:
             args.append(aux)
 
-        FUNCTIONS[args[0]](graph, *args[1:])  # Black magic
+        func = FUNCTIONS.get(args[0], None)
+        if func:
+            func(graph, *args[1:])  # Black magic
+        else:
+            print("No existe el comando especificado")
 
 
 def complete_information(graph, path):
