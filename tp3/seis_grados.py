@@ -1,23 +1,17 @@
 import random
 import heapq
 from graph import Graph
+from queue import Queue
 
-
-class FifoQueue:
-    def __init__(self):
-        self.lista = []
-
-    def get(self):
-        if not self.empty():
-            return self.lista.pop(0)
-
-    def empty(self):
-        return len(self.lista) == 0
-
-    def put(self, dato):
-        self.lista.append(dato)
-        return
-
+MIN_RANDOM_WALKS = 100
+MAX_RANDOM_WALKS = 200
+MIN_PATH_LEN = 20
+MAX_PATH_LEN = 30
+MIN_RANDOM_WALKS_KEY = "MIN_RANDOM_WALKS"
+MAX_RANDOM_WALKS_KEY = "MAX_RANDOM_WALKS"
+MIN_PATH_LEN_KEY = "MIN_PATH_LEN"
+MAX_PATH_LEN_KEY = "MAX_PATH_LEN"
+POPULARITY_DISTANCE = 2
 
 def create_graph(file):
     """"""
@@ -56,7 +50,7 @@ def make_path(parents, start, end):
     return final_path
 
 
-def path(graph, start, end):
+def bfs(graph, start, end):
     if start not in graph or end not in graph:
         return []
 
@@ -64,7 +58,7 @@ def path(graph, start, end):
     visited[end] = True
     parents = {}
     parents[end] = None
-    process = FifoQueue()
+    process = Queue()
     process.put(end)
     v = None
     while not process.empty():
@@ -99,14 +93,13 @@ def popularity(graph, actor):
     if not actor in graph:
         return False
 
-    actors = actors_at_distance(graph, actor, 2)
+    actors = actors_at_distance(graph, actor, POPULARITY_DISTANCE)
     movies_counted = set()
     movies_count = 0
     for movie in graph.get_edges_of_vertex(actor):
         if movie not in movies_counted:
             movies_count += 1
             movies_counted.add(movie)
-    print(movies_count)
     return len(actors) * movies_count
 
 
@@ -116,7 +109,7 @@ def n_steps(graph, vertex, n):
 
     visited = {}
     level = {}
-    process = FifoQueue()
+    process = Queue()
 
     process.put(vertex)
     visited[vertex] = True
@@ -127,7 +120,7 @@ def n_steps(graph, vertex, n):
         for w in graph.get_neighbours(v):
             if w in visited:
                 continue
-            visited[w] = True                
+            visited[w] = True
             level[w] = level[v] + 1
             process.put(w)
             if level[w] == n:
@@ -159,11 +152,15 @@ def similar(graph, vertex, n):
     return [t[1] for t in aux]
 
 
-def random_walk(graph, vertex, actors):
+def random_walk(graph, vertex, actors, options):
     original_neighbours = graph.get_neighbours(vertex)
-    for i in range(random.randint(100, 200)):
+    min_walks = options.get(MIN_RANDOM_WALKS_KEY, MIN_RANDOM_WALKS)
+    max_walks = options.get(MAX_RANDOM_WALKS_KEY, MAX_RANDOM_WALKS)
+    for i in range(random.randint(min_walks, max_walks)):
         v = vertex
-        for j in range(random.randint(20, 30)):
+        min_path = options.get(MAX_PATH_LEN_KEY, MIN_PATH_LEN)
+        max_path = options.get(MAX_PATH_LEN_KEY, MAX_PATH_LEN)
+        for j in range(random.randint(min_path, max_path)):
             neighbours = graph.get_neighbours(v)
             v = random.sample(neighbours, 1)[0]  # Sample returns a list
             if v in original_neighbours or v == vertex:  # If its a direct neighbour or the original ignore
@@ -181,7 +178,7 @@ def compare_neighbours(graph, vertex, list_):
 
 # ------- PUBLIC API BECAUSE REQUIREMENTS -------
 def camino(grafo, vertice1, vertice2):
-    return path(grafo, vertice1, vertice2)
+    return bfs(grafo, vertice1, vertice2)
 
 
 def actores_a_distancia(grafo, actor, distancia):

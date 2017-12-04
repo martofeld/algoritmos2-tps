@@ -1,8 +1,6 @@
 import sys
 import seis_grados as graph_functions
-
-from datetime import datetime
-from graph import Graph
+import re
 
 PATH_TO_KB = "camino_hasta_KB"
 BACON_NUMBER = "bacon_number"
@@ -27,20 +25,8 @@ def main():
 
 def run_command(graph):
     for line in sys.stdin:
-        line = line.strip()
-        should_split = True
-        aux = ""
-        args = []
-        for char in line:
-            if char == "'":
-                should_split = not should_split
-            elif char == " " and should_split:
-                args.append(aux)
-                aux = ""
-            else:
-                aux += char
-        if aux:
-            args.append(aux)
+        args = re.split("\s(?=')", line.strip())
+        print(args)
 
         func = FUNCTIONS.get(args[0], None)
         if func:
@@ -61,7 +47,7 @@ def complete_information(graph, path):
 
 def path_to_kb(graph, actor):
     """"""
-    path = graph_functions.path(graph, KB, actor)
+    path = graph_functions.bfs(graph, KB, actor)
     movie_path = complete_information(graph, path)
     for step in movie_path:
         print("'{}' actuo con '{}' en '{}'".format(step[0], step[1], step[2]))
@@ -72,7 +58,7 @@ def obtain_bacon_number(graph, actor):
     if actor not in graph.get_vertexes():
         print("No hay un camino posible de {} a Kevin Bacon").format(actor)
         return
-    path = graph_functions.path(graph, KB, actor)
+    path = graph_functions.bfs(graph, KB, actor)
     bacon_number = len(path)
     if not bacon_number:
         return -1
@@ -109,7 +95,7 @@ def bacon_number_inf(graph):
     """"""
     list = []
     for vertex in graph:
-        path = graph_functions.path(graph, vertex, KB)
+        path = graph_functions.bfs(graph, vertex, KB)
         if not path:
             list.append(vertex)
     if not list:
