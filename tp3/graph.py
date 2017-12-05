@@ -1,8 +1,21 @@
+class _Edge:
+    def __init__(self, info):
+        self.info = info
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return self.info == other.info
+
 class Graph:
     def __init__(self, vertexes={}, edges={}):
         """Creates a new empty graph"""
         self.vertexes = vertexes
-        self.edges = edges
+        self.edges = {}
+        for k, v in edges.items():
+            self.edges[_Edge(k)] = v
+
 
     def add_vertex(self, name):
         """Adds a new vertex"""
@@ -15,7 +28,7 @@ class Graph:
             return
         edges = self.vertexes.pop(name)
         for edge in edges:
-            self.edges[edge].remove(name)
+            self.edges[_Edge(edge)].remove(name)
 
     def add_edge(self, vertex1, vertex2, information):
         """Adds a new edge between the two vertexes with the extra information"""
@@ -27,12 +40,14 @@ class Graph:
 
         self.vertexes[vertex1].add(information)
         self.vertexes[vertex2].add(information)
-        self.edges[information].add(vertex1)
-        self.edges[information].add(vertex2)
+        key = _Edge(information)
+        self.edges[key].add(vertex1)
+        self.edges[key].add(vertex2)
 
     def remove_edge(self, vertex1, vertex2):
         """Removes the edge that connects the two vertexes"""
-        # TODO, was not needed yet
+        self.vertexes[vertex1].remove(vertex2)
+        self.vertexes[vertex2].remove(vertex1)
 
     def get_vertexes(self):
         """"""
@@ -51,7 +66,7 @@ class Graph:
         neighbours = set()
         edges = self.vertexes[vertex]
         for edge in edges:
-            for neighbour in self.edges[edge]:
+            for neighbour in self.edges[_Edge(edge)]:
                 neighbours.add(neighbour)
         return neighbours
 
